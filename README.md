@@ -1,0 +1,6 @@
+- distribox
+- nix (nix-shell)
+- deno
+- bash
+- docker / podman (with compose)
+- pgsql
