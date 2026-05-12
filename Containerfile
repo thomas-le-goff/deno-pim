@@ -29,8 +29,6 @@ RUN dnf install -y \
       which \
     && dnf clean all
 
-RUN curl -fsSL https://dl.deno.land/rpm/setup.sh | bash \
-    && dnf install -y deno \
-    && dnf clean all
+RUN curl -fsSL https://deno.land/install.sh | sh -s -- --yes
 
 WORKDIR /workspace
