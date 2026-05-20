@@ -3,3 +3,4 @@ vendor/
 coverage/
 .deno/
 .deno_info/
+.env

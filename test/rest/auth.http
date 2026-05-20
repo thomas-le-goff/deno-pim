@@ -1,0 +1,10 @@
+// A basic request
+GET https://httpbin.org/get
+
+> {%
+    client.test("Test status code", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+###
