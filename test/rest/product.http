@@ -1,10 +1,30 @@
-// A basic request
-GET https://httpbin.org/get
 
-> {%
-    client.test("Test status code", function() {
-        client.assert(response.status === 200, "Response status is not 200");
-    });
-%}
+// Get existing product by ID
+GET http://localhost:3000/products/1
+Content-Type: application/json; charset=utf-8
+Authorization: {{$global.auth_header}}
+
+{{
+  const { equal } = require('assert');
+
+  test("Get existing product by ID", () => {
+    equal(response.statusCode, 200);
+    const body = JSON.parse(response.body);
+    equal(body.id, 1);
+  });
+}}
 
 ###
+
+// Get non-existing product by ID
+GET http://localhost:3000/products/999
+Content-Type: application/json; charset=utf-8
+Authorization: {{$global.auth_header}}
+
+{{
+  const { equal } = require('assert');
+
+  test("Get non-existing product by ID", () => {
+    equal(response.statusCode, 404);
+  });
+}}

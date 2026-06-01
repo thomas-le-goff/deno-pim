@@ -1,10 +1,78 @@
-// A basic request
-GET https://httpbin.org/get
+// Login with valid credentials
+POST http://localhost:3000/login
+Content-Type: application/json; charset=utf-8
 
-> {%
-    client.test("Test status code", function() {
-        client.assert(response.status === 200, "Response status is not 200");
-    });
-%}
+{"username": "admin", "password": "admin"}
+
+{{
+  const { equal, ok } = require('assert');
+
+  test("Authorization succeed with bearer token", () => {
+    const authorizationHeader = response.headers["authorization"] ?? response.headers["Authorization"];
+
+    equal(response.statusCode, 200);
+    ok(authorizationHeader?.startsWith("Bearer"), "Authorization doesn't contain Bearer");
+    $global.auth_header = authorizationHeader;
+  });
+}}
 
 ###
+
+// Login with invalid credentials
+POST http://localhost:3000/login
+Content-Type: application/json; charset=utf-8
+{"username": "admin", "password": "wrongpassword"}
+
+{{
+  const { equal } = require('assert');
+
+  test("Authorization failed with wrong credentials", () => {
+    equal(response.statusCode, 400);
+  });
+}}
+
+###
+
+// Get user profile with valid token
+GET http://localhost:3000/me
+Content-Type: application/json; charset=utf-8
+Authorization: {{$global.auth_header}}
+
+{{
+  const { equal } = require('assert');
+
+  test("Get user profile with valid token", () => {
+    equal(response.statusCode, 200);
+    const body = JSON.parse(response.body);
+    equal(body.username, "admin");
+  });
+}}
+
+###
+
+// Get user profile with invalid token
+GET http://localhost:3000/me
+Content-Type: application/json; charset=utf-8
+Authorization: Bearer invalidtoken
+
+{{
+  const { equal } = require('assert');
+
+  test("Get user profile with invalid token", () => {
+    equal(response.statusCode, 401);
+  });
+}}
+
+###
+
+// Get user profile without authorization header
+GET http://localhost:3000/me
+Content-Type: application/json; charset=utf-8
+
+{{
+  const { equal } = require('assert');
+
+  test("Get user profile without authorization header", () => {
+    equal(response.statusCode, 401);
+  });
+}}

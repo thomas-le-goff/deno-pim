@@ -6,7 +6,7 @@
 -- Products
 -- EAN-13 codes are realistic and pass the checksum algorithm
 -- -------------------------------------------------------------
-INSERT INTO product (ean, name, price) VALUES
+INSERT INTO "product" ("ean", "name", "price") VALUES
   -- Électronique
   ('3700123456786', 'Smartphone XPhone 14 Pro',           799.99),
   ('3700123456793', 'Écouteurs sans fil BeatPro 3',        149.90),

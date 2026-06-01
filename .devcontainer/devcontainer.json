@@ -2,22 +2,22 @@
   "name": "deno-pim",
   "build": {
     "context": "..",
-    "dockerfile": "../Containerfile",
+    "dockerfile": "../Containerfile"
   },
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/${localWorkspaceFolderBasename},type=bind",
   "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
   "remoteEnv": {
     "PROJECT_ROOT": "${containerWorkspaceFolder}",
     "DENO_DIR": "${containerWorkspaceFolder}/.deno",
-    "PATH": "${containerEnv:PATH}:${containerWorkspaceFolder}/node_modules/.bin",
+    "PATH": "${containerEnv:PATH}:${containerWorkspaceFolder}/node_modules/.bin"
   },
   "customizations": {
     "vscode": {
       "settings": {
         "deno.enable": true,
-        "deno.lint": true,
+        "deno.lint": true
       },
-      "extensions": ["denoland.vscode-deno", "skellock.just"],
-    },
-  },
+      "extensions": ["denoland.vscode-deno", "skellock.just"]
+    }
+  }
 }

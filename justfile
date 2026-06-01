@@ -14,7 +14,15 @@ reset-env force="false":
 # Dev
 [group('Dev')]
 dev:
-    deno run -P=dev --watch src/main.ts
+    deno run --allow-env --allow-sys --allow-net --watch src/main.ts
+
+[group('Dev')]
+fmt:
+    deno fmt .
+
+[group('Dev')]
+repl:
+    deno repl
 
 # Database
 [doc('Start database running in container (podman or docker)')]
@@ -24,6 +32,7 @@ db-up:
     . ./scripts/lib/host-helpers.sh
     exec_on_host "$(compose_cmd)" -f compose.yml up db -d
 
+[confirm]
 [doc('Run SQL migration files in order from scripts/database/sql/migrations/')]
 [group('Database')]
 db-migrate:
@@ -34,6 +43,7 @@ db-migrate:
         psql "$DB_CONNECTION_STRING" -f "$f"
     done
 
+[confirm]
 [doc('Seed database fixtures in order from scripts/database/sql/data/')]
 [group('Database')]
 db-seed:
@@ -57,16 +67,39 @@ db-down:
 db-connect:
     psql $DB_CONNECTION_STRING
 
+[confirm]
+[doc('Drop database')]
+[group('Database')]
+db-drop:
+    #!/usr/bin/env python
+    from urllib.parse import urlsplit, unquote
+    import os
+
+    url = urlsplit(os.environ["DB_CONNECTION_STRING"])
+
+    db_name = unquote(url.path.rsplit("/", 1)[-1])
+    connection_string = url._replace(path="/postgres").geturl()
+
+    os.system(f"dropdb --maintenance-db={connection_string} {db_name}")
+
 # Test
+[arg("pull", long="pull", value="true")]
 [doc('Run REST tests set')]
 [group('Test')]
-test-rest:
+test-rest file="" pull="false":
     #!/usr/bin/env bash
     set -euo pipefail
 
     . ./scripts/lib/host-helpers.sh
 
-    test_files="$(ls ./test/rest)"
+    if [[ "{{ file }}" == "" ]]; then
+        test_files="$(ls ./test/rest)"
+    else
+        test_files="{{ file }}"
+    fi
 
-    exec_on_host "$(container_cmd)" pull docker.io/jetbrains/intellij-http-client
-    exec_on_host "$(container_cmd)" run --rm --network host -v $PWD/test/rest:/workdir:Z jetbrains/intellij-http-client -D $test_files
+    if [[ "{{ pull }}" == "true" ]]; then
+        exec_on_host "$(container_cmd)" pull ghcr.io/anweber/httpyac:latest
+    fi
+
+    exec_on_host "$(container_cmd)" run -it --rm --network=host -v $PWD/test/rest:/data:Z anweber/httpyac $test_files --all

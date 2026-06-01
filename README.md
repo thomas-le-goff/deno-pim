@@ -33,3 +33,5 @@ Included tools:
 - jq
 - just
 - psql
+
+Follow 12 factors app ruleset.

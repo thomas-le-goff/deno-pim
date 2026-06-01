@@ -1,17 +1,45 @@
 import Fastify from "fastify";
-import routes from "./route.ts";
-import dbConnector from "./database.ts";
+
+import process from "node:process";
+
+import auth from "./plugins/auth.ts";
+import dbConnector from "./plugins/database.ts";
+
+import productRoutes from "./plugins/routes/product.routes.ts";
+import authRoutes from "./plugins/routes/auth.routes.ts";
+import userRoutes from "./plugins/routes/user.routes.ts";
+
+const environment = "development"; // TODO: how to properly switch between production and development env?
+
+const loggerConfiguration = {
+  development: {
+    transport: {
+      target: "pino-pretty",
+      options: {
+        translateTime: "HH:MM:ss Z",
+        ignore: "pid,hostname",
+      },
+    },
+  },
+  production: true,
+  test: false,
+};
 
 const app = Fastify({
-  logger: true,
+  logger: loggerConfiguration[environment] ?? true,
 });
 
-app.register(dbConnector);
-app.register(routes);
+await app.register(dbConnector);
+await app.register(auth);
+
+//TODO: maybe add index.js in routes folder for routes registration
+app.register(productRoutes);
+app.register(authRoutes);
+app.register(userRoutes);
 
 const start = async () => {
   try {
-    await app.listen({ port: 3000, host: "localhost" });
+    await app.listen({ port: 3000 });
   } catch (err) {
     app.log.error(err);
     process.exit(1);
