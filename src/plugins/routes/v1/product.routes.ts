@@ -1,15 +1,14 @@
-import { FastifyPluginOptions } from "fastify";
-
-import fastifyPlugin from "fastify-plugin";
 import * as Pg from "pg";
-import { App } from "../../main.ts";
-import { ProductParamsSchema } from "../../schemas/product.schema.ts";
+import { ProductParamsSchema } from "../../../schemas/product.schema.ts";
+import { FastifyPluginCallbackTypebox } from "@fastify/type-provider-typebox";
+import fastifyPlugin from "fastify-plugin";
 
 const baseSchema = {
   tags: ["Product"],
+  security: [{ bearerAuth: [] }],
 };
 
-function routes(app: App, _options: FastifyPluginOptions) {
+const routes: FastifyPluginCallbackTypebox = (app, _opts, done) => {
   app.route({
     method: "GET",
     url: "/products/:id",
@@ -35,16 +34,16 @@ function routes(app: App, _options: FastifyPluginOptions) {
         }
         return rows[0];
       } finally {
-        //TODO: is there a way to have "scoped" service like in .NET? (using exists in TS/JS)
+        //TODO: take a look at @fastify/awilix
         client.release();
       }
     },
   });
-}
+
+  done();
+};
 
 export default fastifyPlugin(routes, {
-  dependencies: ["@fastify/postgres"],
+  dependencies: ["internal-auth", "@fastify/postgres"],
   encapsulate: true,
 });
-
-// TODO NEXT => use plugin autoloader and provide API documentation using Swagger

@@ -1,16 +1,16 @@
-import Fastify from "fastify";
-import Swagger from "@fastify/swagger";
-import SwaggerUI from "@fastify/swagger-ui";
+import fastify, { FastifyError } from "fastify";
+import fastifyAutoLoad from "@fastify/autoload";
+import fastifySwagger from "@fastify/swagger";
+import fastifySwaggerUI from "@fastify/swagger-ui";
 
 import process from "node:process";
+import path, { dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 
-import auth from "./plugins/auth.ts";
-import dbConnector from "./plugins/database.ts";
-
-import productRoutes from "./plugins/routes/product.routes.ts";
-import authRoutes from "./plugins/routes/auth.routes.ts";
-import userRoutes from "./plugins/routes/user.routes.ts";
 import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const environment = "development"; // TODO: how to properly switch between production and development env?
 
@@ -28,14 +28,35 @@ const loggerConfiguration = {
   test: false,
 };
 
-const app = Fastify({
+const app = fastify({
   logger: loggerConfiguration[environment] ?? true,
 }).withTypeProvider<TypeBoxTypeProvider>();
 
-export type App = typeof app;
+app.setErrorHandler((err: FastifyError, request, reply) => {
+  app.log.error(
+    {
+      err,
+      request: {
+        method: request.method,
+        url: request.url,
+        query: request.query,
+        params: request.params,
+      },
+    },
+    "Unhandled error occurred",
+  );
 
-// TODO: api versionning in route
-await app.register(Swagger, {
+  reply.code(err.statusCode ?? 500);
+
+  let message = "Internal Server Error";
+  if (err.statusCode && err.statusCode < 500) {
+    message = err.message;
+  }
+
+  return { message };
+});
+
+await app.register(fastifySwagger, {
   openapi: {
     info: {
       title: "Deno PIM",
@@ -54,15 +75,18 @@ await app.register(Swagger, {
   hideUntagged: true,
 });
 
-await app.register(SwaggerUI);
+await app.register(fastifySwaggerUI);
 
-await app.register(dbConnector);
-await app.register(auth);
+await app.register(fastifyAutoLoad, {
+  dir: path.join(__dirname, "plugins"),
+  forceESM: true,
+  ignorePattern: /^.*(?:routes).ts$/,
+});
 
-//TODO: maybe add index.js in routes folder for routes registration (use fastify autload)
-app.register(productRoutes);
-app.register(authRoutes);
-app.register(userRoutes);
+await app.register(fastifyAutoLoad, {
+  dir: path.join(__dirname, "plugins/routes"),
+  forceESM: true,
+});
 
 const start = async () => {
   try {

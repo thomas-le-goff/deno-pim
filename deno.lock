@@ -2,6 +2,7 @@
   "version": "5",
   "specifiers": {
     "npm:@fastify/auth@^5.0.4": "5.0.4",
+    "npm:@fastify/autoload@^6.3.1": "6.3.1",
     "npm:@fastify/jwt@^10.1.0": "10.1.0",
     "npm:@fastify/postgres@^6.0.2": "6.0.2_pg@8.21.0",
     "npm:@fastify/swagger-ui@^5.2.6": "5.2.6",
@@ -32,6 +33,9 @@
         "fastify-plugin",
         "reusify"
       ]
+    },
+    "@fastify/autoload@6.3.1": {
+      "integrity": "sha512-0fsG+lO3m5yEZVjXKpltCe+2eHhM6rfAPQhvlGUgLUFTw/N2wA9WqPTObMtrF3oUCUrxbSDv60HlUIoh+aFM1A=="
     },
     "@fastify/error@4.2.0": {
       "integrity": "sha512-RSo3sVDXfHskiBZKBPRgnQTtIqpi/7zhJOEmAxCiBcM7d0uwdGdxLlsCaLzGs8v8NnxIRlfG0N51p5yFaOentQ=="
@@ -662,6 +666,7 @@
   "workspace": {
     "dependencies": [
       "npm:@fastify/auth@^5.0.4",
+      "npm:@fastify/autoload@^6.3.1",
       "npm:@fastify/jwt@^10.1.0",
       "npm:@fastify/postgres@^6.0.2",
       "npm:@fastify/swagger-ui@^5.2.6",

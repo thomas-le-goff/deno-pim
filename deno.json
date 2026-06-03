@@ -1,6 +1,7 @@
 {
   "imports": {
     "@fastify/auth": "npm:@fastify/auth@^5.0.4",
+    "@fastify/autoload": "npm:@fastify/autoload@^6.3.1",
     "@fastify/jwt": "npm:@fastify/jwt@^10.1.0",
     "@fastify/postgres": "npm:@fastify/postgres@^6.0.2",
     "@fastify/swagger": "npm:@fastify/swagger@^9.7.0",

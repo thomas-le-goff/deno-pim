@@ -1,5 +1,5 @@
 // Login with valid credentials
-POST http://localhost:3000/login
+POST http://localhost:3000/v1/login
 Content-Type: application/json; charset=utf-8
 
 {"username": "admin", "password": "admin"}
@@ -18,7 +18,7 @@ Content-Type: application/json; charset=utf-8
 ###
 
 // Login with invalid credentials
-POST http://localhost:3000/login
+POST http://localhost:3000/v1/login
 Content-Type: application/json; charset=utf-8
 {"username": "admin", "password": "wrongpassword"}
 
@@ -33,7 +33,7 @@ Content-Type: application/json; charset=utf-8
 ###
 
 // Login with missing fields
-POST http://localhost:3000/login
+POST http://localhost:3000/v1/login
 Content-Type: application/json; charset=utf-8
 {"username": "admin"}
 
@@ -48,7 +48,7 @@ Content-Type: application/json; charset=utf-8
 ###
 
 // Get user profile with valid token
-GET http://localhost:3000/me
+GET http://localhost:3000/v1/me
 Content-Type: application/json; charset=utf-8
 Authorization: {{$global.auth_header}}
 
@@ -65,7 +65,7 @@ Authorization: {{$global.auth_header}}
 ###
 
 // Get user profile with invalid token
-GET http://localhost:3000/me
+GET http://localhost:3000/v1/me
 Content-Type: application/json; charset=utf-8
 Authorization: Bearer invalidtoken
 
@@ -80,7 +80,7 @@ Authorization: Bearer invalidtoken
 ###
 
 // Get user profile without authorization header
-GET http://localhost:3000/me
+GET http://localhost:3000/v1/me
 Content-Type: application/json; charset=utf-8
 
 {{

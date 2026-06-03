@@ -1,6 +1,6 @@
 
 // Get existing product by ID
-GET http://localhost:3000/products/1
+GET http://localhost:3000/v1/products/1
 Content-Type: application/json; charset=utf-8
 Authorization: {{$global.auth_header}}
 
@@ -17,7 +17,7 @@ Authorization: {{$global.auth_header}}
 ###
 
 // Get non-existing product by ID
-GET http://localhost:3000/products/999
+GET http://localhost:3000/v1/products/999
 Content-Type: application/json; charset=utf-8
 Authorization: {{$global.auth_header}}
 

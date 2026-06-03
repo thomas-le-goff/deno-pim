@@ -1,16 +1,20 @@
-import { FastifyPluginOptions, FastifySchema } from "fastify";
+import { FastifySchema } from "fastify";
 
 import fastifyPlugin from "fastify-plugin";
-import { App } from "../../main.ts";
-import { MeResponseSchema } from "../../schemas/user.schema.ts";
-import { ClientErrorSchema } from "../../schemas/common.schema.ts";
+import { MeResponseSchema } from "../../../schemas/user.schema.ts";
+import { ClientErrorSchema } from "../../../schemas/common.schema.ts";
+import { FastifyPluginCallbackTypebox } from "@fastify/type-provider-typebox";
 
 const baseSchema: FastifySchema = {
   tags: ["User"],
   security: [{ bearerAuth: [] }],
 };
 
-function routes(app: App, _options: FastifyPluginOptions) {
+const routes: FastifyPluginCallbackTypebox = (
+  app,
+  _opts,
+  done,
+) => {
   app.route({
     method: "GET",
     url: "/me",
@@ -31,7 +35,9 @@ function routes(app: App, _options: FastifyPluginOptions) {
       reply.code(200).send(await this.getCurrentUser(request));
     },
   });
-}
+
+  done();
+};
 
 export default fastifyPlugin(routes, {
   dependencies: ["internal-auth"],

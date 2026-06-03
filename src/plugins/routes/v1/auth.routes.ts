@@ -1,18 +1,18 @@
-import { FastifyPluginOptions } from "fastify";
-
-import { Type } from "@fastify/type-provider-typebox";
+import {
+  FastifyPluginCallbackTypebox,
+  Type,
+} from "@fastify/type-provider-typebox";
 
 import fastifyPlugin from "fastify-plugin";
 
-import { User } from "../../data/user.store.ts";
-import { App } from "../../main.ts";
-import { LoginBodySchema } from "../../schemas/auth.schema.ts";
+import { User } from "../../../data/user.store.ts";
+import { LoginBodySchema } from "../../../schemas/auth.schema.ts";
 
 const baseSchema = {
   tags: ["Authentication"],
 };
 
-function routes(app: App, _options: FastifyPluginOptions) {
+const routes: FastifyPluginCallbackTypebox = (app, _opts, done) => {
   app.route({
     method: "POST",
     url: "/login",
@@ -53,10 +53,13 @@ function routes(app: App, _options: FastifyPluginOptions) {
       });
     },
   });
-}
+
+  done();
+};
 
 export default fastifyPlugin(routes, {
   dependencies: [
     "internal-auth",
   ],
+  encapsulate: true,
 });
