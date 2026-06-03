@@ -14,7 +14,7 @@ reset-env force="false":
 # Dev
 [group('Dev')]
 dev:
-    deno run --allow-env --allow-sys --allow-net --watch src/main.ts
+    deno run --allow-env --allow-sys --allow-net --allow-read --watch src/main.ts
 
 [group('Dev')]
 fmt:

@@ -8,11 +8,10 @@ Content-Type: application/json; charset=utf-8
   const { equal, ok } = require('assert');
 
   test("Authorization succeed with bearer token", () => {
-    const authorizationHeader = response.headers["authorization"] ?? response.headers["Authorization"];
-
     equal(response.statusCode, 200);
-    ok(authorizationHeader?.startsWith("Bearer"), "Authorization doesn't contain Bearer");
-    $global.auth_header = authorizationHeader;
+    const body = JSON.parse(response.body);
+    ok(body.access_token);
+    $global.auth_header = `Bearer ${body.access_token}`;
   });
 }}
 
@@ -27,6 +26,21 @@ Content-Type: application/json; charset=utf-8
   const { equal } = require('assert');
 
   test("Authorization failed with wrong credentials", () => {
+    equal(response.statusCode, 400);
+  });
+}}
+
+###
+
+// Login with missing fields
+POST http://localhost:3000/login
+Content-Type: application/json; charset=utf-8
+{"username": "admin"}
+
+{{
+  const { equal } = require('assert');
+
+  test("Authorization failed with missing fields", () => {
     equal(response.statusCode, 400);
   });
 }}

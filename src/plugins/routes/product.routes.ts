@@ -1,29 +1,28 @@
-import {
-  FastifyInstance,
-  FastifyPluginOptions,
-  FastifyReply,
-  FastifyRequest,
-} from "fastify";
+import { FastifyPluginOptions } from "fastify";
 
 import fastifyPlugin from "fastify-plugin";
 import * as Pg from "pg";
+import { App } from "../../main.ts";
+import { ProductParamsSchema } from "../../schemas/product.schema.ts";
 
-type ProductParams = { id: string };
+const baseSchema = {
+  tags: ["Product"],
+};
 
-function routes(app: FastifyInstance, _options: FastifyPluginOptions) {
-  app.get("/", () => {
-    return { hello: "world" };
-  });
-
-  app.route<{ Params: ProductParams }>({
+function routes(app: App, _options: FastifyPluginOptions) {
+  app.route({
     method: "GET",
     url: "/products/:id",
     preHandler: app.auth([
       app.jwtPolicy,
     ]),
+    schema: {
+      ...baseSchema,
+      params: ProductParamsSchema,
+    },
     handler: async (
-      request: FastifyRequest<{ Params: ProductParams }>,
-      reply: FastifyReply,
+      request,
+      reply,
     ) => {
       const client: Pg.Client = await app.pg.main.connect();
       try {
@@ -47,3 +46,5 @@ export default fastifyPlugin(routes, {
   dependencies: ["@fastify/postgres"],
   encapsulate: true,
 });
+
+// TODO NEXT => use plugin autoloader and provide API documentation using Swagger

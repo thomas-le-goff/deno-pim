@@ -1,60 +1,56 @@
-import {
-  FastifyInstance,
-  FastifyPluginOptions,
-  FastifyReply,
-  FastifyRequest,
-} from "fastify";
+import { FastifyPluginOptions } from "fastify";
 
 import { Type } from "@fastify/type-provider-typebox";
 
 import fastifyPlugin from "fastify-plugin";
 
 import { User } from "../../data/user.store.ts";
+import { App } from "../../main.ts";
+import { LoginBodySchema } from "../../schemas/auth.schema.ts";
 
-type LoginBody = {
-  username: string;
-  password: string;
+const baseSchema = {
+  tags: ["Authentication"],
 };
 
-function routes(app: FastifyInstance, _options: FastifyPluginOptions) {
-  app.route<{ Body: LoginBody }>({
+function routes(app: App, _options: FastifyPluginOptions) {
+  app.route({
     method: "POST",
     url: "/login",
     schema: {
-      body: {
-        type: "object",
-        properties: {
-          username: { type: "string" },
-          password: { type: "string" },
-        },
-        required: ["username", "password"], // TODO: use properties from schema.body.properties
-      },
+      ...baseSchema,
+      body: LoginBodySchema,
       response: {
-        200: Type.String(),
+        200: Type.Object({
+          access_token: Type.String(),
+          token_type: Type.String({ default: "Bearer" }),
+          expires_in: Type.Integer(),
+        }),
         400: Type.Object({
           message: Type.String(),
         }),
       },
     },
     handler: async (
-      req: FastifyRequest<{ Body: LoginBody }>,
-      reply: FastifyReply,
+      req,
+      reply,
     ) => {
       let user: User;
 
       try {
         user = await app.verifyUserAndPassword(req.body);
       } catch (err) {
-        reply.code(400).send({ message: err });
+        // TODO prevent 500 error to be catch and move into 400
+        reply.code(400).send({ message: `${err}` });
         return;
       }
 
-      const token = await reply.jwtSign({
-        id: user.id,
-        username: user.username,
-      });
+      const token = await app.generateToken(user);
 
-      reply.header("authorization", `Bearer ${token}`).send();
+      reply.code(200).send({
+        "access_token": token,
+        "token_type": "Bearer",
+        "expires_in": 3600, // TODO: how to properly retrieve this information from the internal-auth plugin?
+      });
     },
   });
 }

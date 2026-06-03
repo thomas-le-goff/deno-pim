@@ -5,7 +5,7 @@ import {
   FastifyRequest,
 } from "fastify";
 import fastifyPlugin from "fastify-plugin";
-import { fastifyJwt } from "@fastify/jwt";
+import { fastifyJwt, SignOptions } from "@fastify/jwt";
 import { fastifyAuth } from "@fastify/auth";
 import { User, UserId } from "../data/user.store.ts";
 import { promisify } from "node:util";
@@ -20,8 +20,16 @@ declare module "fastify" {
     verifyUserAndPassword(
       login: { username: string; password: string },
     ): Promise<User>;
+    generateToken(
+      user: User,
+    ): Promise<string>;
   }
 }
+
+const jwtOptions: SignOptions = {
+  notBefore: "",
+  expiresIn: "5h",
+};
 
 type JwtPayload = {
   id: UserId;
@@ -133,6 +141,31 @@ function auth(app: FastifyInstance, _options: FastifyPluginOptions) {
       }
 
       return user;
+    },
+  );
+
+  app.decorate(
+    "generateToken",
+    function (
+      this: FastifyInstance,
+      user: User,
+    ): Promise<string> {
+      return new Promise((resolve, reject) => {
+        this.jwt.sign(
+          {
+            id: user.id,
+            username: user.username,
+          },
+          jwtOptions,
+          (e, token) => {
+            if (e) {
+              reject(e);
+            } else {
+              resolve(token);
+            }
+          },
+        );
+      });
     },
   );
 }

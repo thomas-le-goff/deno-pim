@@ -1,37 +1,32 @@
-import {
-  FastifyInstance,
-  FastifyPluginOptions,
-  FastifyReply,
-  FastifyRequest,
-} from "fastify";
-
-import { Type } from "@fastify/type-provider-typebox";
+import { FastifyPluginOptions, FastifySchema } from "fastify";
 
 import fastifyPlugin from "fastify-plugin";
+import { App } from "../../main.ts";
+import { MeResponseSchema } from "../../schemas/user.schema.ts";
+import { ClientErrorSchema } from "../../schemas/common.schema.ts";
 
-function routes(app: FastifyInstance, _options: FastifyPluginOptions) {
-  app.route<Record<PropertyKey, never>>({
+const baseSchema: FastifySchema = {
+  tags: ["User"],
+  security: [{ bearerAuth: [] }],
+};
+
+function routes(app: App, _options: FastifyPluginOptions) {
+  app.route({
     method: "GET",
     url: "/me",
     schema: {
+      ...baseSchema,
       response: {
-        // Can we infer this from TS type?
-        200: Type.Object({
-          id: Type.String(),
-          username: Type.String(),
-        }),
-        401: Type.Object({
-          message: Type.String(),
-        }),
+        200: MeResponseSchema,
+        401: ClientErrorSchema,
       },
     },
     preHandler: app.auth([
       app.jwtPolicy,
     ]),
     handler: async function (
-      this: FastifyInstance,
-      request: FastifyRequest<Record<PropertyKey, never>>,
-      reply: FastifyReply,
+      request,
+      reply,
     ) {
       reply.code(200).send(await this.getCurrentUser(request));
     },
