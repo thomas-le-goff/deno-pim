@@ -1,0 +1,131 @@
+// Get existing user by ID
+GET http://localhost:3000/v1/users/1
+Content-Type: application/json; charset=utf-8
+Authorization: {{$global.auth_header}}
+
+{{
+  const { equal } = require('assert');
+
+  test("Get existing user by ID", () => {
+    equal(response.statusCode, 200);
+    const body = JSON.parse(response.body);
+    equal(body.id, 1);
+  });
+}}
+
+// Get non-existing user by ID
+GET http://localhost:3000/v1/users/999
+Content-Type: application/json; charset=utf-8
+Authorization: {{$global.auth_header}}
+
+{{
+  const { equal } = require('assert');
+
+  test("Get non-existing user by ID", () => {
+    equal(response.statusCode, 404);
+    const body = JSON.parse(response.body);
+    equal(body.message, "User not found");
+  });
+}}
+
+// Get user without authorization header
+GET http://localhost:3000/v1/users/1
+Content-Type: application/json; charset=utf-8
+
+{{
+  const { equal } = require('assert');
+
+  test("Get user without authorization header", () => {
+    equal(response.statusCode, 401);
+    const body = JSON.parse(response.body);
+    equal(body.message, "Unauthorized");
+  });
+}}
+
+// Get User with invalid ID (non-integer)
+GET http://localhost:3000/v1/users/abc
+Content-Type: application/json; charset=utf-8
+Authorization: {{$global.auth_header}}
+
+{{
+  const { equal } = require('assert');
+
+  test("Get user with invalid ID (non-integer)", () => {
+    equal(response.statusCode, 400);
+    const body = JSON.parse(response.body);
+    equal(body.message, "params/id must be integer");
+  });
+}}
+
+// Get User with invalid ID (negative integer)
+GET http://localhost:3000/v1/users/-1
+Content-Type: application/json; charset=utf-8
+Authorization: {{$global.auth_header}}
+
+{{
+  const { equal } = require('assert');
+
+  test("Get user with invalid ID (negative integer)", () => {
+    equal(response.statusCode, 400);
+    const body = JSON.parse(response.body);
+    equal(body.message, "params/id must be >= 1");
+  });
+}}
+
+// Find users by role
+GET http://localhost:3000/v1/users?role=admin
+Content-Type: application/json; charset=utf-8
+Authorization: {{$global.auth_header}}
+
+{{
+  const { equal } = require('assert');
+
+  test("Find users by role", () => {
+    equal(response.statusCode, 200);
+    const body = JSON.parse(response.body);
+    equal(Array.isArray(body.result), true);
+    equal(body.count > 0, true);
+  });
+}}
+
+// Create new valid user
+POST http://localhost:3000/v1/users
+Content-Type: application/json; charset=utf-8
+Authorization: {{$global.auth_header}}
+{
+    "username": "newuser", "role": "user", "password": "newpassword"
+}
+
+{{
+  const { equal } = require('assert');
+
+  test("Create new valid user", () => {
+    equal(response.statusCode, 201);
+    const body = JSON.parse(response.body);
+    equal(body.username, "newuser");
+    equal(body.role, "user");
+    notEmpty(body.id);
+  });
+}}
+
+// Delete specified existing user by ID
+DELETE http://localhost:3000/v1/users/2
+Authorization: {{$global.auth_header}}
+{{
+  const { equal } = require('assert');
+
+  test("Delete specified existing user by ID", () => {
+    equal(response.statusCode, 204);
+  });
+}}
+
+// Delete non-existing user by ID (design choice: return 204 No Content for idempotency)
+DELETE http://localhost:3000/v1/users/999
+Authorization: {{$global.auth_header}}
+{{
+    const { equal } = require('assert');
+
+    test("Delete non-existing user by ID", () => {
+        equal(response.statusCode, 204);
+    });
+}}

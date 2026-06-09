@@ -21,19 +21,26 @@ This project is a small sample app used to demonstrate Fastify best practices an
 ## Planned work
 
 - Read/write API (for product and user management)
+- Refresh mecanism for better authentication
 - Nginx integration
+- Proper logging (cloudfirst logging)
 - Production Docker environment
 - CI/CD pipeline (tests, Docker build, quality checks, dependency updates)
-- Proper logging
 - OpenTelemetry, including Grafana dashboards
-- Dependency injection
+- Dependency injection (by taking a look at awilix)
 - Migration rollback support
+- Swagger authentication using credentials
 - WebSocket API
-- More complete test coverage
+- More complete test coverage (maybe by using node:test)
+- 12-factor app recommendations
 - OWASP recommendations
 - ANSSI recommendations
-- 12-factor app recommendations
-- Terraform deployment for a cloud provider
+- Terraform deployment for a specific cloud provider
+- How to get AST inside of raw SQL query (in stores)
+- Study and justify idempotency choices
+- Send registration link to created user (email management)
+- REST Client generation for TS (with full automation and publication on npm registry)
+- Ressources file equivalent
 
 ## Justfile
 

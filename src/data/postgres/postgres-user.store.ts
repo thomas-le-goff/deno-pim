@@ -1,5 +1,5 @@
 import * as Pg from "pg";
-import { User, UserId, UserStore } from "../user.store.ts";
+import { SearchUserQuery, User, UserId, UserStore } from "../user.store.ts";
 
 export class PostgresUserStore implements UserStore {
   private readonly _client: Pg.Client;
@@ -17,9 +17,10 @@ export class PostgresUserStore implements UserStore {
     const { rows } = await this._client.query<{
       id: number;
       username: string;
+      role: string;
     }>(
-      'INSERT INTO "user" ("username", "password") VALUES ($1, $2) RETURNING "id", "username"',
-      [user.username, user.password],
+      'INSERT INTO "user" ("username", "password", "role") VALUES ($1, $2, $3) RETURNING "id", "username", "role"',
+      [user.username, user.password, user.role],
     );
 
     return this.#toUser(rows[0])!;
@@ -29,8 +30,9 @@ export class PostgresUserStore implements UserStore {
     const { rows } = await this._client.query<{
       id: number;
       username: string;
+      role: string;
     }>(
-      'SELECT "id", "username" FROM "user" WHERE "id" = $1',
+      'SELECT "id", "username", "role" FROM "user" WHERE "id" = $1',
       [id],
     );
 
@@ -41,8 +43,9 @@ export class PostgresUserStore implements UserStore {
     const { rows } = await this._client.query<{
       id: number;
       username: string;
+      role: string;
     }>(
-      'SELECT "id", "username" FROM "user" WHERE "username" = $1',
+      'SELECT "id", "username", "role" FROM "user" WHERE "username" = $1',
       [username],
     );
 
@@ -56,39 +59,53 @@ export class PostgresUserStore implements UserStore {
     const { rows } = await this._client.query<{
       id: number;
       username: string;
+      role: string;
     }>(
-      'SELECT "id", "username" FROM "user" WHERE "username" = $1 AND "password" = $2',
+      'SELECT "id", "username", "role" FROM "user" WHERE "username" = $1 AND "password" = $2',
       [username, hash],
     );
 
     return this.#toUser(rows[0]);
   }
 
+  async findBySearchQuery(_searchQuery: SearchUserQuery): Promise<User[]> {
+    //TODO: find a lightway query builder
+    const { rows } = await this._client.query<{
+      id: number;
+      username: string;
+      role: string;
+    }>(
+      'SELECT "id", "username", "role" FROM "user"',
+      [],
+    );
+
+    return rows.map(this.#toUser);
+  }
+
   async update(id: UserId, user: User): Promise<User> {
     const { rows } = await this._client.query<{
       id: number;
       username: string;
+      role: string;
     }>(
-      'UPDATE "user" SET "username" = $1 WHERE id = $2 RETURNING "id", "username"',
+      'UPDATE "user" SET "username" = $1 WHERE id = $2 RETURNING "id", "username", "role"',
       [user.username, id],
     );
 
     return this.#toUser(rows[0])!;
   }
 
-  async delete(id: UserId): Promise<void> {
+  async delete(id: UserId): Promise<boolean> {
     const result = await this._client.query(
       'DELETE FROM "user" WHERE "id" = $1',
       [id],
     );
 
-    if (result.rowCount === 0) {
-      throw new Error(`User ${id} not found`);
-    }
+    return result.rowCount !== 0;
   }
 
   #toUser(
-    row: { id: number; username: string } | undefined,
+    row: { id: number; username: string; role: string } | undefined,
   ): User | null {
     if (!row) {
       return null;
@@ -98,6 +115,7 @@ export class PostgresUserStore implements UserStore {
       id: String(row.id),
       username: row.username,
       password: undefined,
+      role: row.role,
     };
   }
 }

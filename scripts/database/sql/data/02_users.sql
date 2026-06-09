@@ -5,7 +5,7 @@
 -- -------------------------------------------------------------
 -- Users
 -- -------------------------------------------------------------
-INSERT INTO "user" ("username", "password") VALUES
-  ('admin', 'admin'),
-  ('foo', 'foo'),
-  ('bar', 'bar');
+INSERT INTO "user" ("username", "password", "role") VALUES
+  ('admin', 'admin', 'admin'),
+  ('foo', 'foo', 'user'),
+  ('bar', 'bar', 'user');

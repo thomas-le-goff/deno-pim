@@ -7,8 +7,8 @@ import {
 import fastifyPlugin from "fastify-plugin";
 import { fastifyJwt, SignOptions } from "@fastify/jwt";
 import { fastifyAuth } from "@fastify/auth";
-import { User, UserId } from "../data/user.store.ts";
-import { promisify } from "node:util";
+import { createFromPartialUser, User, UserId } from "../data/user.store.ts";
+import warning from "process-warning";
 
 declare module "fastify" {
   interface FastifyInstance {
@@ -20,9 +20,16 @@ declare module "fastify" {
     verifyUserAndPassword(
       login: { username: string; password: string },
     ): Promise<User>;
+    hashPassword(password: string): Promise<string>;
     generateToken(
       user: User,
     ): Promise<string>;
+  }
+}
+
+declare module "@fastify/jwt" {
+  interface FastifyJWT {
+    user: JwtPayload;
   }
 }
 
@@ -34,7 +41,15 @@ const jwtOptions: SignOptions = {
 type JwtPayload = {
   id: UserId;
   username: string;
+  roles: [string];
 };
+
+const clearPasswordWarning = warning.createWarning({
+  name: "AuthClearPassword",
+  code: "AUTH_CLEAR_PASSWORD",
+  message:
+    "password hashing is currently not implemented, password will be stored as clear text.",
+});
 
 // TODO: replace with @std/dotenv OR fastify/env
 function getEnvOrThrow(key: string): string {
@@ -45,16 +60,7 @@ function getEnvOrThrow(key: string): string {
   return value;
 }
 
-function extractTokenFromHeader(authorization_header: string): string {
-  // headers can return string | string[], normalize to a single token
-  return (Array.isArray(authorization_header)
-    ? authorization_header[0]
-    : authorization_header).replace(
-      "Bearer ",
-      "",
-    );
-}
-
+//TODO: use FastifyPluginCallbackTypebox / FastifyPluginAsyncTypebox
 function auth(app: FastifyInstance, _options: FastifyPluginOptions) {
   app.register(fastifyJwt, {
     secret: getEnvOrThrow("JWT_PRIVATE"),
@@ -69,19 +75,10 @@ function auth(app: FastifyInstance, _options: FastifyPluginOptions) {
       request: FastifyRequest,
       reply: FastifyReply,
     ): Promise<void> {
-      const rawAuth = request.raw.headers["authorization"];
-      if (!rawAuth) {
-        reply.code(401).send({ message: "Unauthorized" });
-        throw new Error("Unauthorized");
-      }
-
-      const token = extractTokenFromHeader(rawAuth);
-
       try {
-        await (promisify(this.jwt.verify))(token);
+        await request.jwtVerify();
       } catch (err) {
-        reply.code(401).send({ message: "Unauthorized" });
-        throw new Error("Unauthorized", { cause: err });
+        reply.send(err);
       }
     },
   );
@@ -92,33 +89,8 @@ function auth(app: FastifyInstance, _options: FastifyPluginOptions) {
       this: FastifyInstance,
       request: FastifyRequest,
     ): Promise<User> {
-      const rawAuth = request.raw.headers["authorization"];
-      if (!rawAuth) {
-        throw new Error(
-          "Cannot get bearer token, please ensure user is authenticated before using the following function.",
-        );
-      }
-
-      const token = extractTokenFromHeader(rawAuth);
-
-      let decodedToken: JwtPayload | null;
-      try {
-        decodedToken = this.jwt.decode<JwtPayload>(token);
-      } catch (err) {
-        throw new Error("Cannot get token informations.", { cause: err });
-      }
-
-      if (!decodedToken) {
-        throw new Error("Cannot get token informations.");
-      }
-
-      const user = await this.userStore.findById(decodedToken?.id);
-
-      if (user) {
-        return user;
-      } else {
-        throw new Error(`User id=${decodedToken.id} doesn't exist anymore.`);
-      }
+      // TODO type checking and transformation if required
+      return Promise.resolve(createFromPartialUser(request.user));
     },
   );
 
@@ -126,13 +98,12 @@ function auth(app: FastifyInstance, _options: FastifyPluginOptions) {
     "verifyUserAndPassword",
     async function (
       this: FastifyInstance,
-      // TODO: type unification with type from upper/lower layer
       login: { username: string; password: string },
     ): Promise<User> {
       const userStore = this.userStore;
       const user = await userStore.findByUsernameAndHash(
         login.username,
-        login.password, //TODO: hash password
+        await this.hashPassword(login.password),
       );
 
       if (!user) {
@@ -141,6 +112,14 @@ function auth(app: FastifyInstance, _options: FastifyPluginOptions) {
       }
 
       return user;
+    },
+  );
+
+  app.decorate(
+    "hashPassword",
+    function (password: string): Promise<string> {
+      clearPasswordWarning();
+      return Promise.resolve(password);
     },
   );
 
@@ -155,6 +134,7 @@ function auth(app: FastifyInstance, _options: FastifyPluginOptions) {
           {
             id: user.id,
             username: user.username,
+            roles: [user.role],
           },
           jwtOptions,
           (e, token) => {

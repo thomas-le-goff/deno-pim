@@ -7,6 +7,7 @@ import fastifyPlugin from "fastify-plugin";
 
 import { User } from "../../../data/user.store.ts";
 import { LoginBodySchema } from "../../../schemas/auth.schema.ts";
+import { StatusCodes } from "http-status-codes";
 
 const baseSchema = {
   tags: ["Authentication"],
@@ -39,14 +40,13 @@ const routes: FastifyPluginCallbackTypebox = (app, _opts, done) => {
       try {
         user = await app.verifyUserAndPassword(req.body);
       } catch (err) {
-        // TODO prevent 500 error to be catch and move into 400
-        reply.code(400).send({ message: `${err}` });
-        return;
+        // TODO prevent 500 error to be catched and move into 400
+        return reply.code(StatusCodes.BAD_REQUEST).send({ message: `${err}` });
       }
 
       const token = await app.generateToken(user);
 
-      reply.code(200).send({
+      return reply.code(StatusCodes.OK).send({
         "access_token": token,
         "token_type": "Bearer",
         "expires_in": 3600, // TODO: how to properly retrieve this information from the internal-auth plugin?

@@ -2,6 +2,7 @@ import * as Pg from "pg";
 import { ProductParamsSchema } from "../../../schemas/product.schema.ts";
 import { FastifyPluginCallbackTypebox } from "@fastify/type-provider-typebox";
 import fastifyPlugin from "fastify-plugin";
+import { StatusCodes } from "http-status-codes";
 
 const baseSchema = {
   tags: ["Product"],
@@ -30,9 +31,11 @@ const routes: FastifyPluginCallbackTypebox = (app, _opts, done) => {
           [request.params.id],
         );
         if (rows.length === 0) {
-          return reply.code(404).send({ message: "Product not found" });
+          return reply.code(StatusCodes.NOT_FOUND).send({
+            message: "Product not found",
+          });
         }
-        return rows[0];
+        return reply.code(StatusCodes.OK).send(rows[0]);
       } finally {
         //TODO: take a look at @fastify/awilix
         client.release();
