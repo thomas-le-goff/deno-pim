@@ -22,7 +22,7 @@ function isAdmin(this: FastifyRequest, reply: FastifyReply) {
 }
 
 export default fastifyPlugin(
-  async function (fastify) {
+  function (fastify) {
     fastify.decorateRequest("verifyAccess", verifyAccess);
     fastify.decorateRequest("isAdmin", isAdmin);
   },

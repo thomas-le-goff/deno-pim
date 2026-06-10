@@ -2,17 +2,30 @@ import fastify, { FastifyError } from "fastify";
 import fastifyAutoLoad from "@fastify/autoload";
 import fastifySwagger from "@fastify/swagger";
 import fastifySwaggerUI from "@fastify/swagger-ui";
+import fastifyEnv from "@fastify/env";
 
 import process from "node:process";
 import path, { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
+import { TypeBoxTypeProvider, Type, Static } from "@fastify/type-provider-typebox";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const environment = "development"; // TODO: how to properly switch between production and development env?
+
+declare module "fastify" {
+  interface FastifyInstance {
+    config: Static<typeof configSchema>;
+  }
+}
+
+const configSchema = Type.Object({
+  PORT: Type.String({ default: "3000" }),
+  JWT_PRIVATE: Type.String(),
+  DB_CONNECTION_STRING: Type.String(),
+});
 
 const loggerConfiguration = {
   development: {
@@ -54,6 +67,11 @@ app.setErrorHandler((err: FastifyError, request, reply) => {
   }
 
   return { message };
+});
+
+await app.register(fastifyEnv, {
+  confKey: "config",
+  schema: configSchema,
 });
 
 await app.register(fastifySwagger, {

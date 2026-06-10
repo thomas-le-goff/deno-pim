@@ -44,13 +44,9 @@ const routes: FastifyPluginCallbackTypebox = (app, _opts, done) => {
         return reply.code(StatusCodes.BAD_REQUEST).send({ message: `${err}` });
       }
 
-      const token = await app.generateToken(user);
-
-      return reply.code(StatusCodes.OK).send({
-        "access_token": token,
-        "token_type": "Bearer",
-        "expires_in": 3600, // TODO: how to properly retrieve this information from the internal-auth plugin?
-      });
+      return reply.code(StatusCodes.OK).send(
+        await app.generateTokenResponse(user),
+      );
     },
   });
 

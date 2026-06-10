@@ -3,6 +3,7 @@
   "specifiers": {
     "npm:@fastify/auth@^5.0.4": "5.0.4",
     "npm:@fastify/autoload@^6.3.1": "6.3.1",
+    "npm:@fastify/env@7": "7.0.0",
     "npm:@fastify/jwt@^10.1.0": "10.1.0",
     "npm:@fastify/postgres@^6.0.2": "6.0.2_pg@8.21.0",
     "npm:@fastify/swagger-ui@^5.2.6": "5.2.6",
@@ -38,6 +39,13 @@
     },
     "@fastify/autoload@6.3.1": {
       "integrity": "sha512-0fsG+lO3m5yEZVjXKpltCe+2eHhM6rfAPQhvlGUgLUFTw/N2wA9WqPTObMtrF3oUCUrxbSDv60HlUIoh+aFM1A=="
+    },
+    "@fastify/env@7.0.0": {
+      "integrity": "sha512-uXoxDzQ9FR/J6XXmcFndAksHM+hAxGXf/v6L4x9iLmK/04Tp/ZceV1oBxsJJo4bNaSu7WHhJqIQReIfz0Ul+tg==",
+      "dependencies": [
+        "env-schema",
+        "fastify-plugin"
+      ]
     },
     "@fastify/error@4.2.0": {
       "integrity": "sha512-RSo3sVDXfHskiBZKBPRgnQTtIqpi/7zhJOEmAxCiBcM7d0uwdGdxLlsCaLzGs8v8NnxIRlfG0N51p5yFaOentQ=="
@@ -226,6 +234,12 @@
       "integrity": "sha512-ooEGc6HP26xXq/N+GCGOT0JKCLDGrq2bQUZrQ7gyrJiZANJ/8YDTxTpQBXGMn+WbIQXNVpyWymm7KYVICQnyOg==",
       "dependencies": [
         "once"
+      ]
+    },
+    "env-schema@7.0.0": {
+      "integrity": "sha512-b8rdAwdFpekDxNAUNuT6KbV/QEX/pTBs0gjehEPmBUUteh9zBDm9zxFSQt55D29odo3rJt4feoWRqn4U/tzicw==",
+      "dependencies": [
+        "ajv"
       ]
     },
     "escape-html@1.0.3": {
@@ -672,6 +686,7 @@
     "dependencies": [
       "npm:@fastify/auth@^5.0.4",
       "npm:@fastify/autoload@^6.3.1",
+      "npm:@fastify/env@7",
       "npm:@fastify/jwt@^10.1.0",
       "npm:@fastify/postgres@^6.0.2",
       "npm:@fastify/swagger-ui@^5.2.6",

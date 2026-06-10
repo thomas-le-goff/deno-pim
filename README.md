@@ -21,6 +21,7 @@ This project is a small sample app used to demonstrate Fastify best practices an
 ## Planned work
 
 - Read/write API (for product and user management)
+- Properly handle SIGINT
 - Refresh mecanism for better authentication
 - Nginx integration
 - Proper logging (cloudfirst logging)
@@ -30,6 +31,7 @@ This project is a small sample app used to demonstrate Fastify best practices an
 - Dependency injection (by taking a look at awilix)
 - Migration rollback support
 - Swagger authentication using credentials
+- Event Driven Architecture using NATS
 - WebSocket API
 - More complete test coverage (maybe by using node:test)
 - 12-factor app recommendations
@@ -40,7 +42,8 @@ This project is a small sample app used to demonstrate Fastify best practices an
 - Study and justify idempotency choices
 - Send registration link to created user (email management)
 - REST Client generation for TS (with full automation and publication on npm registry)
-- Ressources file equivalent
+- Ressources file equivalent (https://intlayer.org/fr/doc/environment/fastify)
+- Load test using autocanon (and optimization with the following reco: https://www.youtube.com/watch?v=VI29mUA8n9w)
 
 ## Justfile
 
