@@ -27,6 +27,7 @@ RUN dnf install -y \
       unzip \
       util-linux \
       which \
+      bat \
     && dnf clean all
 
 RUN curl -fsSL https://deno.land/install.sh | sh -s -- --yes
