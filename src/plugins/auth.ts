@@ -8,7 +8,6 @@ import fastifyPlugin from "fastify-plugin";
 import { fastifyJwt, SignOptions } from "@fastify/jwt";
 import { fastifyAuth } from "@fastify/auth";
 import { createFromPartialUser, User, UserId } from "../data/user.store.ts";
-import warning from "process-warning";
 
 declare module "fastify" {
   interface FastifyInstance {
@@ -27,6 +26,9 @@ declare module "@fastify/jwt" {
   }
 }
 
+const FAKE_PASSWORD_HASH =
+  "597f3caeccb3b5060c3b9994556fbc84.31520ccfc27544cba4be68b3cdd521419ef5f965d8f2eeb0b7f78fe29ef7b845";
+
 const jwtOptions: SignOptions = {
   notBefore: "",
   expiresIn: "5h",
@@ -44,13 +46,6 @@ type JwtTokenResponse = {
   expires_in: number;
 };
 
-const clearPasswordWarning = warning.createWarning({
-  name: "AuthClearPassword",
-  code: "AUTH_CLEAR_PASSWORD",
-  message:
-    "password hashing is currently not implemented, password will be stored as clear text.",
-});
-
 async function jwtPolicy(
   this: FastifyInstance,
   request: FastifyRequest,
@@ -67,7 +62,6 @@ function getCurrentUser(
   this: FastifyInstance,
   request: FastifyRequest,
 ): Promise<User> {
-  // TODO type checking and transformation if required
   return Promise.resolve(createFromPartialUser(request.user));
 }
 
@@ -76,21 +70,31 @@ async function verifyUserAndPassword(
   login: { username: string; password: string },
 ): Promise<User> {
   const userStore = this.userStore;
-  const user = await userStore.findByUsernameAndHash(
+  const user = await userStore.findByUsername(
     login.username,
-    await this.hashPassword(login.password),
   );
 
-  if (!user) {
+  // We fake password checking if user isn't found to prevent leaking information to an attacker.
+  const hashedPassword = user?.password || FAKE_PASSWORD_HASH;
+  const invalidPassword = await this.passwordHasher.compare(
+    login.password,
+    hashedPassword,
+  );
+
+  if (
+    !invalidPassword || !user
+  ) {
     throw new Error("Incorrect username or password");
   }
 
   return user;
 }
 
-function hashPassword(password: string): Promise<string> {
-  clearPasswordWarning();
-  return Promise.resolve(password);
+function hashPassword(
+  this: FastifyInstance,
+  password: string,
+): Promise<string> {
+  return this.passwordHasher.hash(password);
 }
 
 function generateToken(
@@ -157,6 +161,7 @@ export default fastifyPlugin(
     name: "internal-auth",
     dependencies: [
       "internal-database",
+      "internal-password-hasher",
     ],
   },
 );

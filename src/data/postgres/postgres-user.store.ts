@@ -43,28 +43,13 @@ export class PostgresUserStore implements UserStore {
     const { rows } = await this._client.query<{
       id: number;
       username: string;
+      password: string;
       role: string;
     }>(
-      'SELECT "id", "username", "role" FROM "user" WHERE "username" = $1',
+      'SELECT "id", "username", "password", "role" FROM "user" WHERE "username" = $1',
       [username],
     );
-
-    return this.#toUser(rows[0]);
-  }
-
-  async findByUsernameAndHash(
-    username: string,
-    hash: string,
-  ): Promise<User | null> {
-    const { rows } = await this._client.query<{
-      id: number;
-      username: string;
-      role: string;
-    }>(
-      'SELECT "id", "username", "role" FROM "user" WHERE "username" = $1 AND "password" = $2',
-      [username, hash],
-    );
-
+    // The password is extracted to be used in hash comparison method in auth
     return this.#toUser(rows[0]);
   }
 
@@ -105,7 +90,12 @@ export class PostgresUserStore implements UserStore {
   }
 
   #toUser(
-    row: { id: number; username: string; role: string } | undefined,
+    row: {
+      id: number;
+      username: string;
+      password: string | undefined;
+      role: string;
+    } | undefined,
   ): User | null {
     if (!row) {
       return null;
@@ -114,7 +104,7 @@ export class PostgresUserStore implements UserStore {
     return {
       id: String(row.id),
       username: row.username,
-      password: undefined,
+      password: row.password,
       role: row.role,
     };
   }

@@ -99,7 +99,6 @@ const routes: FastifyPluginCallbackTypebox = (
     ) {
       const { id } = request.params;
 
-      // TODO do we have some kind of middleware that handle every server error and turn it into 500 (otherwiser do we need to create one or properly use try/catch)
       const user = await this.userStore.findById(id.toString());
 
       if (user == null) {

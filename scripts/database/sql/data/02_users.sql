@@ -6,6 +6,6 @@
 -- Users
 -- -------------------------------------------------------------
 INSERT INTO "user" ("username", "password", "role") VALUES
-  ('admin', 'admin', 'admin'),
-  ('foo', 'foo', 'user'),
-  ('bar', 'bar', 'user');
+  ('admin', 'a260a272445592276098ce3af0f50e21.be1fbc385b67bfa379277f192f2120d587df2e83b65ef181e60bc3ffaa6d6069', 'admin'),
+  ('foo', '841d14a727a01d598a4b1001444c8a73.8c2ddb51ce8e62dd2dfe718e927486ce88d013da0ade076c1b83e8f9b47d30e4', 'user'),
+  ('bar', '7dc707e864aa3fd4a5cb579164be19bb.174bccfcb4eaf5e5311a9eaec32a3adb6e4e744d6d977a8256aaf29ae34b3c7c', 'user');
