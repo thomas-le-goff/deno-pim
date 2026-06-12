@@ -8,6 +8,7 @@ import fastifyPlugin from "fastify-plugin";
 import { User } from "../../../data/user.store.ts";
 import { LoginBodySchema } from "../../../schemas/auth.schema.ts";
 import { StatusCodes } from "http-status-codes";
+import { InvalidCredentialsError } from "../../auth.ts";
 
 const baseSchema = {
   tags: ["Authentication"],
@@ -40,8 +41,13 @@ const routes: FastifyPluginCallbackTypebox = (app, _opts, done) => {
       try {
         user = await app.verifyUserAndPassword(req.body);
       } catch (err) {
-        // TODO prevent 500 error to be catched and move into 400
-        return reply.code(StatusCodes.BAD_REQUEST).send({ message: `${err}` });
+        if (err instanceof InvalidCredentialsError) {
+          return reply.code(StatusCodes.BAD_REQUEST).send({
+            message: req.t("auth.invalid-credentials"),
+          });
+        }
+
+        throw err;
       }
 
       return reply.code(StatusCodes.OK).send(
@@ -56,6 +62,7 @@ const routes: FastifyPluginCallbackTypebox = (app, _opts, done) => {
 export default fastifyPlugin(routes, {
   dependencies: [
     "internal-auth",
+    "internal-i18n",
   ],
   encapsulate: true,
 });

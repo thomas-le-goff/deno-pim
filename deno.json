@@ -1,5 +1,7 @@
 {
+  "nodeModulesDir": "none",
   "imports": {
+    "@fluent/bundle": "npm:@fluent/bundle",
     "@fastify/auth": "npm:@fastify/auth@^5.0.4",
     "@fastify/autoload": "npm:@fastify/autoload@^6.3.1",
     "@fastify/env": "npm:@fastify/env@^7.0.0",

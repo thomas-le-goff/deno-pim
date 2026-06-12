@@ -9,16 +9,23 @@ declare module "fastify" {
   }
 }
 
-function verifyAccess(this: FastifyRequest, reply: FastifyReply, role: string) {
+function verifyAccess(
+  this: FastifyRequest,
+  reply: FastifyReply,
+  role: string,
+): FastifyReply | void {
   if (!this.user.roles.includes(role)) {
-    reply.status(403).send({
-      message: "You are not authorized to access this resource.",
+    return reply.status(403).send({
+      message: this.t("authorization.forbidden"),
     });
   }
 }
 
-function isAdmin(this: FastifyRequest, reply: FastifyReply) {
-  this.verifyAccess(reply, "admin");
+function isAdmin(
+  this: FastifyRequest,
+  reply: FastifyReply,
+): FastifyReply | void {
+  return this.verifyAccess(reply, "admin");
 }
 
 export default fastifyPlugin(
@@ -26,5 +33,8 @@ export default fastifyPlugin(
     fastify.decorateRequest("verifyAccess", verifyAccess);
     fastify.decorateRequest("isAdmin", isAdmin);
   },
-  { name: "authorization" },
+  {
+    name: "authorization",
+    dependencies: ["internal-i18n"],
+  },
 );

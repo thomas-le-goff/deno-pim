@@ -4,13 +4,16 @@ Simple REST API built with Deno and Fastify.
 
 ## Goals
 
-This project is a small sample app used to demonstrate Fastify best practices and a simple modern DevOps setup.
+This project is a small sample app used to demonstrate Fastify best practices
+and a simple modern DevOps setup.
 
 ## Already available
 
 - REST API built with Deno and Fastify
 - JWT authentication with a login endpoint
 - Protected routes for the current user and product access
+- Localization with Mozilla Fluent (`Accept-Language` negotiation for API
+  messages)
 - OpenAPI documentation with Swagger UI
 - PostgreSQL integration
 - SQL migrations and seed data
@@ -41,13 +44,15 @@ This project is a small sample app used to demonstrate Fastify best practices an
 - How to get AST inside of raw SQL query (in stores)
 - Study and justify idempotency choices
 - Send registration link to created user (email management)
-- REST Client generation for TS (with full automation and publication on npm registry)
-- Ressources file equivalent (https://intlayer.org/fr/doc/environment/fastify)
-- Load test using autocanon (and optimization with the following reco: https://www.youtube.com/watch?v=VI29mUA8n9w)
+- REST Client generation for TS (with full automation and publication on npm
+  registry)
+- Load test using autocanon (and optimization with the following reco:
+  https://www.youtube.com/watch?v=VI29mUA8n9w)
 
 ## Justfile
 
-Project use [just](https://github.com/casey/just) as command runner, to get the list of available recipes:
+Project use [just](https://github.com/casey/just) as command runner, to get the
+list of available recipes:
 
 ```sh
 just -l
@@ -88,3 +93,4 @@ Included tools:
 - jq
 - just
 - psql
+- bat

@@ -24,7 +24,7 @@ Authorization: {{$global.auth_header}}
   test("Get non-existing user by ID", () => {
     equal(response.statusCode, 404);
     const body = JSON.parse(response.body);
-    equal(body.message, "User not found");
+    equal(body.message, "User 999 not found");
   });
 }}
 

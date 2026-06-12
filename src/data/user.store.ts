@@ -1,5 +1,11 @@
 export type UserId = string;
 
+declare module "fastify" {
+  interface FastifyInstance {
+    userStore: UserStore;
+  }
+}
+
 export type User = {
   id: UserId;
   username: string;

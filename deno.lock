@@ -9,6 +9,7 @@
     "npm:@fastify/swagger-ui@^5.2.6": "5.2.6",
     "npm:@fastify/swagger@^9.7.0": "9.7.0",
     "npm:@fastify/type-provider-typebox@^6.1.0": "6.1.0_typebox@1.1.39",
+    "npm:@fluent/bundle@*": "0.19.1",
     "npm:@types/node@^25.9.1": "25.9.1",
     "npm:fastify-plugin@^5.1.0": "5.1.0",
     "npm:fastify@^5.8.5": "5.8.5",
@@ -135,6 +136,9 @@
       "dependencies": [
         "typebox"
       ]
+    },
+    "@fluent/bundle@0.19.1": {
+      "integrity": "sha512-SWJLZrPamDPsJlFFOW1nkgN0j0rbPbmSdmK0XAoXlyqKieLtMVl4vzng3aR5pwKoUx0scug8+YY2oct3fdfy9A=="
     },
     "@lukeed/ms@2.0.2": {
       "integrity": "sha512-9I2Zn6+NJLfaGoz9jN3lpwDgAYvfGeNYdbAIjJOqzs4Tpc+VU3Jqq4IofSUBKajiDS8k9fZIg18/z13mpk1bsA=="
@@ -692,6 +696,7 @@
       "npm:@fastify/swagger-ui@^5.2.6",
       "npm:@fastify/swagger@^9.7.0",
       "npm:@fastify/type-provider-typebox@^6.1.0",
+      "npm:@fluent/bundle@*",
       "npm:@types/node@^25.9.1",
       "npm:fastify-plugin@^5.1.0",
       "npm:fastify@^5.8.5",

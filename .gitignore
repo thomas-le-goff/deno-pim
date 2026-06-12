@@ -4,3 +4,4 @@ coverage/
 .deno/
 .deno_info/
 .env
+node_modules/

@@ -46,6 +46,13 @@ type JwtTokenResponse = {
   expires_in: number;
 };
 
+export class InvalidCredentialsError extends Error {
+  constructor() {
+    super("Invalid credentials");
+    this.name = "InvalidCredentialsError";
+  }
+}
+
 async function jwtPolicy(
   this: FastifyInstance,
   request: FastifyRequest,
@@ -84,7 +91,7 @@ async function verifyUserAndPassword(
   if (
     !invalidPassword || !user
   ) {
-    throw new Error("Incorrect username or password");
+    throw new InvalidCredentialsError();
   }
 
   return user;

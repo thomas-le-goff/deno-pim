@@ -103,7 +103,7 @@ const routes: FastifyPluginCallbackTypebox = (
 
       if (user == null) {
         return reply.code(StatusCodes.NOT_FOUND).send({
-          message: "User not found",
+          message: request.t("user.not-found", { id: id }),
         });
       }
 
@@ -130,7 +130,11 @@ const routes: FastifyPluginCallbackTypebox = (
       request,
       reply,
     ) {
-      request.isAdmin(reply);
+      const forbiddenReply = request.isAdmin(reply);
+
+      if (forbiddenReply != null) {
+        return forbiddenReply;
+      }
 
       const { body } = request;
       const newUser = createFromPartialUser({
@@ -143,8 +147,8 @@ const routes: FastifyPluginCallbackTypebox = (
       );
 
       if (existingUser) {
-        reply.code(StatusCodes.BAD_REQUEST).send({
-          message: "Username already taken.",
+        return reply.code(StatusCodes.BAD_REQUEST).send({
+          message: request.t("user.username-already-taken"),
         });
       }
 
@@ -182,6 +186,6 @@ const routes: FastifyPluginCallbackTypebox = (
 };
 
 export default fastifyPlugin(routes, {
-  dependencies: ["internal-auth"],
+  dependencies: ["internal-auth", "internal-i18n"],
   encapsulate: true,
 });

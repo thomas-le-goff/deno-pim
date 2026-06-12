@@ -32,7 +32,7 @@ const routes: FastifyPluginCallbackTypebox = (app, _opts, done) => {
         );
         if (rows.length === 0) {
           return reply.code(StatusCodes.NOT_FOUND).send({
-            message: "Product not found",
+            message: request.t("product.not-found"),
           });
         }
         return reply.code(StatusCodes.OK).send(rows[0]);
@@ -47,6 +47,6 @@ const routes: FastifyPluginCallbackTypebox = (app, _opts, done) => {
 };
 
 export default fastifyPlugin(routes, {
-  dependencies: ["internal-auth", "@fastify/postgres"],
+  dependencies: ["internal-auth", "internal-i18n", "@fastify/postgres"],
   encapsulate: true,
 });

@@ -20,6 +20,7 @@ Content-Type: application/json; charset=utf-8
 // Login with invalid credentials
 POST http://localhost:3000/v1/login
 Content-Type: application/json; charset=utf-8
+Accept-Language: fr-FR
 {"username": "admin", "password": "wrongpassword"}
 
 {{

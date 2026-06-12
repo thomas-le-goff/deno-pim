@@ -3,12 +3,17 @@ import fastifyAutoLoad from "@fastify/autoload";
 import fastifySwagger from "@fastify/swagger";
 import fastifySwaggerUI from "@fastify/swagger-ui";
 import fastifyEnv from "@fastify/env";
+import { resolveLocale, translate } from "./localization/fluent.ts";
 
 import process from "node:process";
 import path, { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { TypeBoxTypeProvider, Type, Static } from "@fastify/type-provider-typebox";
+import {
+  Static,
+  Type,
+  TypeBoxTypeProvider,
+} from "@fastify/type-provider-typebox";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -61,7 +66,8 @@ app.setErrorHandler((err: FastifyError, request, reply) => {
 
   reply.code(err.statusCode ?? 500);
 
-  let message = "Internal Server Error";
+  const locale = resolveLocale(request.headers["accept-language"]);
+  let message = translate(locale, "errors.internal-server-error");
   if (err.statusCode && err.statusCode < 500) {
     message = err.message;
   }
