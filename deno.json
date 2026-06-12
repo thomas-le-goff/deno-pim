@@ -1,6 +1,7 @@
 {
   "nodeModulesDir": "none",
   "imports": {
+    "@fastify/cors": "npm:@fastify/cors@^11.2.0",
     "@fluent/bundle": "npm:@fluent/bundle",
     "@fastify/auth": "npm:@fastify/auth@^5.0.4",
     "@fastify/autoload": "npm:@fastify/autoload@^6.3.1",

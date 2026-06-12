@@ -3,6 +3,7 @@
   "specifiers": {
     "npm:@fastify/auth@^5.0.4": "5.0.4",
     "npm:@fastify/autoload@^6.3.1": "6.3.1",
+    "npm:@fastify/cors@^11.2.0": "11.2.0",
     "npm:@fastify/env@7": "7.0.0",
     "npm:@fastify/jwt@^10.1.0": "10.1.0",
     "npm:@fastify/postgres@^6.0.2": "6.0.2_pg@8.21.0",
@@ -40,6 +41,13 @@
     },
     "@fastify/autoload@6.3.1": {
       "integrity": "sha512-0fsG+lO3m5yEZVjXKpltCe+2eHhM6rfAPQhvlGUgLUFTw/N2wA9WqPTObMtrF3oUCUrxbSDv60HlUIoh+aFM1A=="
+    },
+    "@fastify/cors@11.2.0": {
+      "integrity": "sha512-LbLHBuSAdGdSFZYTLVA3+Ch2t+sA6nq3Ejc6XLAKiQ6ViS2qFnvicpj0htsx03FyYeLs04HfRNBsz/a8SvbcUw==",
+      "dependencies": [
+        "fastify-plugin",
+        "toad-cache"
+      ]
     },
     "@fastify/env@7.0.0": {
       "integrity": "sha512-uXoxDzQ9FR/J6XXmcFndAksHM+hAxGXf/v6L4x9iLmK/04Tp/ZceV1oBxsJJo4bNaSu7WHhJqIQReIfz0Ul+tg==",
@@ -690,6 +698,7 @@
     "dependencies": [
       "npm:@fastify/auth@^5.0.4",
       "npm:@fastify/autoload@^6.3.1",
+      "npm:@fastify/cors@^11.2.0",
       "npm:@fastify/env@7",
       "npm:@fastify/jwt@^10.1.0",
       "npm:@fastify/postgres@^6.0.2",

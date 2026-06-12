@@ -1,12 +1,14 @@
 // The following file is taken from here: https://github.com/fastify/demo/blob/5fa922df34d0ace9f8a63279bfd72ea06cf358da/src/plugins/app/password-manager.ts
 
+// Is used to hash human password (so scrypt is more suitable than SHA-256)
+
 import fastifyPlugin from "fastify-plugin";
 import { randomBytes, scrypt, timingSafeEqual } from "node:crypto";
 import { Buffer } from "node:buffer";
 
 declare module "fastify" {
   export interface FastifyInstance {
-    passwordHasher: typeof passwordManager;
+    passwordHasher: typeof passwordHasher;
   }
 }
 
@@ -16,7 +18,7 @@ const SCRYPT_BLOCK_SIZE = 8;
 const SCRYPT_PARALLELIZATION = 2;
 const SCRYPT_MAXMEM = 128 * SCRYPT_COST * SCRYPT_BLOCK_SIZE * 2;
 
-const passwordManager = {
+const passwordHasher = {
   hash: scryptHash,
   compare,
 };
@@ -65,7 +67,7 @@ function compare(value: string, hash: string): Promise<boolean> {
 }
 
 export default fastifyPlugin((fastify) => {
-  fastify.decorate("passwordHasher", passwordManager);
+  fastify.decorate("passwordHasher", passwordHasher);
 }, {
   name: "internal-password-hasher",
 });

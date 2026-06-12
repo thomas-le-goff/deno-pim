@@ -5,7 +5,7 @@ import {
   FastifyRequest,
 } from "fastify";
 import fastifyPlugin from "fastify-plugin";
-import { fastifyJwt, SignOptions } from "@fastify/jwt";
+import { fastifyJwt } from "@fastify/jwt";
 import { fastifyAuth } from "@fastify/auth";
 import { createFromPartialUser, User, UserId } from "../data/user.store.ts";
 
@@ -15,7 +15,7 @@ declare module "fastify" {
     getCurrentUser: typeof getCurrentUser;
     verifyUserAndPassword: typeof verifyUserAndPassword;
     hashPassword: typeof hashPassword;
-    generateToken: typeof generateToken;
+    generateAccessToken: typeof generateAccessToken;
     generateTokenResponse: typeof generateTokenResponse;
   }
 }
@@ -29,18 +29,13 @@ declare module "@fastify/jwt" {
 const FAKE_PASSWORD_HASH =
   "597f3caeccb3b5060c3b9994556fbc84.31520ccfc27544cba4be68b3cdd521419ef5f965d8f2eeb0b7f78fe29ef7b845";
 
-const jwtOptions: SignOptions = {
-  notBefore: "",
-  expiresIn: "5h",
-};
-
 type JwtPayload = {
   id: UserId;
   username: string;
   roles: [string];
 };
 
-type JwtTokenResponse = {
+type AccessTokenResponse = {
   access_token: string;
   token_type: string;
   expires_in: number;
@@ -104,7 +99,7 @@ function hashPassword(
   return this.passwordHasher.hash(password);
 }
 
-function generateToken(
+function generateAccessToken(
   this: FastifyInstance,
   user: User,
 ): Promise<string> {
@@ -115,7 +110,9 @@ function generateToken(
         username: user.username,
         roles: [user.role],
       },
-      jwtOptions,
+      {
+        expiresIn: this.config.ACCESS_TOKEN_EXPIRES_IN,
+      },
       (e, token) => {
         if (e) {
           reject(e);
@@ -130,16 +127,16 @@ function generateToken(
 async function generateTokenResponse(
   this: FastifyInstance,
   user_or_token: User | string,
-): Promise<JwtTokenResponse> {
+): Promise<AccessTokenResponse> {
   const response = {
     token_type: "Bearer",
-    expires_in: 3600,
+    expires_in: this.config.ACCESS_TOKEN_EXPIRES_IN,
   };
 
   if (typeof user_or_token != "string") {
     return {
       ...response,
-      access_token: await this.generateToken(user_or_token),
+      access_token: await this.generateAccessToken(user_or_token),
     };
   }
 
@@ -152,7 +149,7 @@ async function generateTokenResponse(
 export default fastifyPlugin(
   function (app: FastifyInstance, _options: FastifyPluginOptions) {
     app.register(fastifyJwt, {
-      secret: app.config.JWT_PRIVATE,
+      secret: app.config.ACCESS_TOKEN_PRIVATE,
     });
 
     app.register(fastifyAuth);
@@ -161,7 +158,7 @@ export default fastifyPlugin(
     app.decorate("getCurrentUser", getCurrentUser);
     app.decorate("verifyUserAndPassword", verifyUserAndPassword);
     app.decorate("hashPassword", hashPassword);
-    app.decorate("generateToken", generateToken);
+    app.decorate("generateAccessToken", generateAccessToken);
     app.decorate("generateTokenResponse", generateTokenResponse);
   },
   {

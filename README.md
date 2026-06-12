@@ -10,7 +10,7 @@ and a simple modern DevOps setup.
 ## Already available
 
 - REST API built with Deno and Fastify
-- JWT authentication with a login endpoint
+- Integrated JWT-based first-party authentication for a stateless API
 - Protected routes for the current user and product access
 - Localization with Mozilla Fluent (`Accept-Language` negotiation for API
   messages)
@@ -25,7 +25,6 @@ and a simple modern DevOps setup.
 
 - Read/write API (for product and user management)
 - Properly handle SIGINT
-- Refresh mecanism for better authentication
 - Nginx integration
 - Proper logging (cloudfirst logging)
 - Production Docker environment
@@ -46,6 +45,7 @@ and a simple modern DevOps setup.
 - Send registration link to created user (email management)
 - REST Client generation for TS (with full automation and publication on npm
   registry)
+- Real OAuth 2.0 implementation
 - Load test using autocanon (and optimization with the following reco:
   https://www.youtube.com/watch?v=VI29mUA8n9w)
 

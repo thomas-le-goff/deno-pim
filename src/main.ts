@@ -28,7 +28,8 @@ declare module "fastify" {
 
 const configSchema = Type.Object({
   PORT: Type.String({ default: "3000" }),
-  JWT_PRIVATE: Type.String(),
+  ACCESS_TOKEN_PRIVATE: Type.String(),
+  ACCESS_TOKEN_EXPIRES_IN: Type.Number(),
   DB_CONNECTION_STRING: Type.String(),
 });
 
