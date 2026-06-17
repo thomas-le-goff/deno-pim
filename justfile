@@ -19,6 +19,7 @@ dev:
 [group('Dev')]
 fmt:
     deno fmt .
+    deno lint .
 
 [group('Dev')]
 repl:
