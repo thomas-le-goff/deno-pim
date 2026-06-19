@@ -23,7 +23,7 @@ const passwordHasher = {
     compare,
 };
 
-export function scryptHash(value: string): Promise<string> {
+function scryptHash(value: string): Promise<string> {
     return new Promise((resolve, reject) => {
         const salt = randomBytes(Math.min(16, SCRYPT_KEYLEN / 2));
 

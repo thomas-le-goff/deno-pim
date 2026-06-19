@@ -39,7 +39,7 @@ export type SearchUserQuery = {
 };
 
 export interface UserStore {
-    create(user: User): Promise<User>;
+    insert(user: User): Promise<User>;
     findById(id: UserId): Promise<User | null>;
     findByUsername(username: string): Promise<User | null>;
     findBySearchQuery(searchQuery: SearchUserQuery): Promise<User[]>;

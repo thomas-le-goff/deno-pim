@@ -6,6 +6,7 @@ export type SupportedLocale = (typeof supportedLocales)[number];
 export type TranslationKey =
     | 'errors.internal-server-error'
     | 'auth.invalid-credentials'
+    | 'auth.refresh-token-not-found'
     | 'authorization.forbidden'
     | 'user.not-found'
     | 'user.username-already-taken'

@@ -152,7 +152,7 @@ const routes: FastifyPluginCallbackTypebox = (
                 });
             }
 
-            const createdUser = await this.userStore.create(newUser);
+            const createdUser = await this.userStore.insert(newUser);
 
             return reply.code(StatusCodes.CREATED).send(createdUser);
         },

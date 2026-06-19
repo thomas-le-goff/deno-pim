@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS "refresh_token" (
+       "id"     INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+       "user_id" INTEGER NOT NULL ,
+       "value"  TEXT    NOT NULL UNIQUE,
+       "created_at" TIMESTAMP WITH TIME ZONE DEFAULT now(),
+       CONSTRAINT FK_USER FOREIGN KEY (user_id) REFERENCES "user"("id") ON DELETE CASCADE
+)

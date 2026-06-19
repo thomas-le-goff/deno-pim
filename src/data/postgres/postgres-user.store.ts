@@ -8,7 +8,7 @@ export class PostgresUserStore implements UserStore {
         this._client = client;
     }
 
-    async create(user: User): Promise<User> {
+    async insert(user: User): Promise<User> {
         // TODO: password validation is required in domain layer
         if (user.password == undefined) {
             throw new Error(`User password is missing.`);

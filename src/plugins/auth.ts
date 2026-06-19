@@ -8,15 +8,18 @@ import fastifyPlugin from 'fastify-plugin';
 import { fastifyJwt } from '@fastify/jwt';
 import { fastifyAuth } from '@fastify/auth';
 import { createFromPartialUser, User, UserId } from '../data/user.store.ts';
+import { RefreshToken } from '../data/refresh-token.store.ts';
 
 declare module 'fastify' {
     interface FastifyInstance {
         jwtPolicy: typeof jwtPolicy;
         getCurrentUser: typeof getCurrentUser;
         verifyUserAndPassword: typeof verifyUserAndPassword;
+        verifyRefreshToken: typeof verifyRefreshToken;
         hashPassword: typeof hashPassword;
-        generateAccessToken: typeof generateAccessToken;
-        generateTokenResponse: typeof generateTokenResponse;
+        createAccessToken: typeof createAccessToken;
+        createRefreshToken: typeof createRefreshToken;
+        createLoginResponse: typeof createLoginResponse;
     }
 }
 
@@ -35,10 +38,15 @@ type JwtPayload = {
     roles: [string];
 };
 
-type AccessTokenResponse = {
-    access_token: string;
-    token_type: string;
-    expires_in: number;
+type TokenResponse = {
+    token: string;
+    type: string;
+    expires_in: number | undefined;
+};
+
+type LoginResponse = {
+    access_token: TokenResponse;
+    refresh_token: TokenResponse;
 };
 
 export class InvalidCredentialsError extends Error {
@@ -92,6 +100,27 @@ async function verifyUserAndPassword(
     return user;
 }
 
+async function verifyRefreshToken(
+    this: FastifyInstance,
+    token: string,
+): Promise<RefreshToken> {
+    const refreshTokenStore = this.refreshTokenStore;
+    const refreshToken = await refreshTokenStore.findByValue(
+        await this.tokenHasher.deterministicHash(token),
+    );
+
+    if (
+        !refreshToken
+    ) {
+        throw new InvalidCredentialsError();
+    }
+
+    // Invalidated refresh token so it cannot be reused
+    await refreshTokenStore.delete(refreshToken.id);
+
+    return refreshToken;
+}
+
 function hashPassword(
     this: FastifyInstance,
     password: string,
@@ -99,7 +128,7 @@ function hashPassword(
     return this.passwordHasher.hash(password);
 }
 
-function generateAccessToken(
+function createAccessToken(
     this: FastifyInstance,
     user: User,
 ): Promise<string> {
@@ -124,25 +153,52 @@ function generateAccessToken(
     });
 }
 
-async function generateTokenResponse(
+async function createRefreshToken(
     this: FastifyInstance,
-    user_or_token: User | string,
-): Promise<AccessTokenResponse> {
-    const response = {
-        token_type: 'Bearer',
+    user: User,
+): Promise<string> {
+    const refreshTokenValue: string = await this.tokenGenerator
+        .randomRefreshToken();
+    await this.refreshTokenStore.insert({
+        id: '',
+        user_id: user.id,
+        value: await this.tokenHasher.deterministicHash(refreshTokenValue),
+        created_at: undefined,
+    });
+
+    return refreshTokenValue;
+}
+
+async function createLoginResponse(
+    this: FastifyInstance,
+    user_or_tokens: User | [string, string],
+): Promise<LoginResponse> {
+    const access_token: Omit<TokenResponse, 'token'> = {
+        type: 'Bearer',
         expires_in: this.config.ACCESS_TOKEN_EXPIRES_IN,
     };
 
-    if (typeof user_or_token != 'string') {
+    const refresh_token: Omit<TokenResponse, 'token'> = {
+        type: 'Refresh',
+        expires_in: this.config.REFRESH_TOKEN_EXPIRES_IN,
+    };
+
+    if (!Array.isArray(user_or_tokens)) {
         return {
-            ...response,
-            access_token: await this.generateAccessToken(user_or_token),
+            access_token: {
+                ...access_token,
+                token: await this.createAccessToken(user_or_tokens),
+            },
+            refresh_token: {
+                ...refresh_token,
+                token: await this.createRefreshToken(user_or_tokens),
+            },
         };
     }
 
     return {
-        ...response,
-        access_token: user_or_token,
+        access_token: { ...access_token, token: user_or_tokens[0] },
+        refresh_token: { ...refresh_token, token: user_or_tokens[1] },
     };
 }
 
@@ -157,9 +213,12 @@ export default fastifyPlugin(
         app.decorate('jwtPolicy', jwtPolicy);
         app.decorate('getCurrentUser', getCurrentUser);
         app.decorate('verifyUserAndPassword', verifyUserAndPassword);
+        app.decorate('verifyRefreshToken', verifyRefreshToken);
         app.decorate('hashPassword', hashPassword);
-        app.decorate('generateAccessToken', generateAccessToken);
-        app.decorate('generateTokenResponse', generateTokenResponse);
+        app.decorate('createLoginResponse', createLoginResponse);
+
+        app.decorate('createAccessToken', createAccessToken);
+        app.decorate('createRefreshToken', createRefreshToken);
     },
     {
         name: 'internal-auth',

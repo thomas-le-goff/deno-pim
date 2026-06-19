@@ -20,6 +20,7 @@ and a simple modern DevOps setup.
 - `just` commands for development, database tasks, and REST tests
 - REST test files for authentication and product endpoints
 - Dev container, `Containerfile`, and `compose.yml`
+- e2e tests using httpyac (REST API 2e2)
 
 ## Planned work
 
@@ -35,7 +36,7 @@ and a simple modern DevOps setup.
 - Swagger authentication using credentials
 - Event Driven Architecture using NATS
 - WebSocket API
-- More complete test coverage (maybe by using node:test)
+- Unit test (using node:test)
 - 12-factor app recommendations
 - OWASP recommendations
 - ANSSI recommendations
@@ -46,6 +47,7 @@ and a simple modern DevOps setup.
 - REST Client generation for TS (with full automation and publication on npm
   registry)
 - Real OAuth 2.0 implementation
+- Clear expired refresh token
 - Load test using autocanon (and optimization with the following reco:
   https://www.youtube.com/watch?v=VI29mUA8n9w)
 

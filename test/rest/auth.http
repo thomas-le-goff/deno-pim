@@ -11,7 +11,9 @@ Content-Type: application/json; charset=utf-8
     equal(response.statusCode, 200);
     const body = JSON.parse(response.body);
     ok(body.access_token);
-    $global.auth_header = `Bearer ${body.access_token}`;
+    ok(body.refresh_token);
+    $global.auth_header = `Bearer ${body.access_token.token}`;
+    $global.refresh_token = body.refresh_token.token;
   });
 }}
 
@@ -98,13 +100,31 @@ Content-Type: application/json; charset=utf-8
 POST http://localhost:3000/v1/auth/refresh
 Content-Type: application/json; charset=utf-8
 
-{ refresh_token: "" }
+{ "refresh_token": "{{$global.refresh_token}}" }
 
 
 {{
-    const { equal } = require('assert');
+    const { equal, ok } = require('assert');
 
     test("Refresh user authorization token", () => {
-    
+      equal(response.statusCode, 200);
+      const body = JSON.parse(response.body);
+      ok(body.access_token);
+      ok(body.refresh_token);
+    })
+}}
+
+// Re-use of refresh token must failed
+POST http://localhost:3000/v1/auth/refresh
+Content-Type: application/json; charset=utf-8
+
+{ "refresh_token": "{{$global.refresh_token}}" }
+
+
+{{
+    const { equal, ok } = require('assert');
+
+    test("Reuse of refresh token must failed", () => {
+      equal(response.statusCode, 404);
     })
 }}
