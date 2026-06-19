@@ -87,20 +87,20 @@ db-drop:
 [arg("pull", long="pull", value="true")]
 [doc('Run REST tests set')]
 [group('Test')]
-test-rest file="" pull="false":
+test-rest file="" line="" pull="false":
     #!/usr/bin/env bash
     set -euo pipefail
 
     . ./scripts/lib/host-helpers.sh
 
-    if [[ "{{ file }}" == "" ]]; then
-        test_files="$(ls ./test/rest)"
-    else
-        test_files="{{ file }}"
-    fi
-
-    if [[ "{{ pull }}" == "true" ]]; then
+        if [[ "{{ pull }}" == "true" ]]; then
         exec_on_host "$(container_cmd)" pull ghcr.io/anweber/httpyac:latest
     fi
 
-    exec_on_host "$(container_cmd)" run -it --rm --network=host -v $PWD/test/rest:/data:Z anweber/httpyac $test_files --all
+    httpyac_args=($(ls ./test/rest))
+    [[ "{{ file }}" != "" ]] && httpyac_args=('{{ file }}')
+
+    httpyac_args+=("--all")
+    [[ "{{ line }}" != "" ]] && httpyac_args[-1]='-l {{ line }}'
+
+    exec_on_host "$(container_cmd)" run -it --rm --network=host -v $PWD/test/rest:/data:Z anweber/httpyac "${httpyac_args[@]}"
