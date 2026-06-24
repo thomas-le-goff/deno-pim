@@ -1,4 +1,5 @@
 import { FluentBundle, FluentResource, FluentVariable } from '@fluent/bundle';
+import { readFileSync } from 'node:fs';
 
 export const supportedLocales = ['en', 'fr'] as const;
 export type SupportedLocale = (typeof supportedLocales)[number];
@@ -20,9 +21,9 @@ export type Translator = (
 
 const DEFAULT_LOCALE: SupportedLocale = 'en';
 
-const localeResources: Record<SupportedLocale, URL> = {
-    en: new URL('./locales/en.ftl', import.meta.url),
-    fr: new URL('./locales/fr.ftl', import.meta.url),
+const localeResources: Record<SupportedLocale, string> = {
+    en: './src/localization/locales/en.ftl',
+    fr: './src/localization/locales/fr.ftl',
 };
 
 const bundles = new Map(
@@ -31,7 +32,7 @@ const bundles = new Map(
 
 function createBundle(locale: SupportedLocale): FluentBundle {
     const resource = new FluentResource(
-        Deno.readTextFileSync(localeResources[locale]),
+        readFileSync(localeResources[locale], 'utf8'),
     );
     const bundle = new FluentBundle(locale, { useIsolating: false });
     bundle.addResource(resource);

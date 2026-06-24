@@ -25,6 +25,23 @@ fmt:
 repl:
     deno repl
 
+# Build
+[group('Build')]
+build-app-image tag="deno-pim":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    . ./scripts/lib/host-helpers.sh
+
+    exec_on_host "$(container_cmd)" build . --tag {{ tag }}
+
+[group('Stack')]
+stack-up:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    . ./scripts/lib/host-helpers.sh
+    #TODO: check if database is already up
+    exec_on_host "$(container_cmd)" compose up
+
 # Database
 [doc('Start database running in container (podman or docker)')]
 [group('Database')]

@@ -24,20 +24,23 @@ and a simple modern DevOps setup.
 
 ## Planned work
 
+- Proper logging (cloudfirst logging)
+- OpenTelemetry, including Grafana dashboards
+
+- 12-factor app recommendations
+- Event Driven Architecture using NATS
+
 - Read/write API (for product and user management)
 - Properly handle SIGINT
 - Nginx integration
-- Proper logging (cloudfirst logging)
 - Production Docker environment
 - CI/CD pipeline (tests, Docker build, quality checks, dependency updates)
-- OpenTelemetry, including Grafana dashboards
 - Dependency injection (by taking a look at awilix)
 - Migration rollback support
 - Swagger authentication using credentials
-- Event Driven Architecture using NATS
 - WebSocket API
 - Unit test (using node:test)
-- 12-factor app recommendations
+
 - OWASP recommendations
 - ANSSI recommendations
 - Terraform deployment for a specific cloud provider

@@ -18,22 +18,6 @@ import {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const environment = 'development'; // TODO: how to properly switch between production and development env?
-
-declare module 'fastify' {
-    interface FastifyInstance {
-        config: Static<typeof configSchema>;
-    }
-}
-
-const configSchema = Type.Object({
-    PORT: Type.String({ default: '3000' }),
-    ACCESS_TOKEN_PRIVATE: Type.String(),
-    ACCESS_TOKEN_EXPIRES_IN: Type.Number(),
-    REFRESH_TOKEN_EXPIRES_IN: Type.Number(),
-    DB_CONNECTION_STRING: Type.String(),
-});
-
 const loggerConfiguration = {
     development: {
         transport: {
@@ -44,9 +28,32 @@ const loggerConfiguration = {
             },
         },
     },
-    production: true,
+    production: {
+        transport: {
+            target: 'pino-opentelemetry-transport',
+        },
+    },
     test: false,
 };
+
+const { defaultEnvironment, environment } = resolveNodeEnv(
+    Object.keys(loggerConfiguration),
+);
+
+declare module 'fastify' {
+    interface FastifyInstance {
+        config: Static<typeof configSchema>;
+    }
+}
+
+const configSchema = Type.Object({
+    APP_PORT: Type.String({ default: '3000' }),
+    ACCESS_TOKEN_PRIVATE: Type.String(),
+    ACCESS_TOKEN_EXPIRES_IN: Type.Number(),
+    REFRESH_TOKEN_EXPIRES_IN: Type.Number(),
+    DB_CONNECTION_STRING: Type.String(),
+    NODE_ENV: Type.String({ default: defaultEnvironment }),
+});
 
 const app = fastify({
     logger: loggerConfiguration[environment] ?? true,
@@ -124,3 +131,16 @@ const start = async () => {
 };
 
 start();
+
+function resolveNodeEnv(envs: string[]) {
+    const defaultEnvironment = envs[0];
+    const requestedEnvironment = process.env.NODE_ENV ?? defaultEnvironment;
+
+    if (!(requestedEnvironment in loggerConfiguration)) {
+        throw new Error('NODE_ENV must be one of: ' + envs.join(', '));
+    }
+
+    const environment =
+        requestedEnvironment as keyof typeof loggerConfiguration;
+    return { defaultEnvironment, environment };
+}
