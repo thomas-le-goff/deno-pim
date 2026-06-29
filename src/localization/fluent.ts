@@ -1,125 +1,127 @@
-import { FluentBundle, FluentResource, FluentVariable } from '@fluent/bundle';
-import { readFileSync } from 'node:fs';
+import { FluentBundle, FluentResource } from "@fluent/bundle";
+import type { FluentVariable } from "@fluent/bundle";
 
-export const supportedLocales = ['en', 'fr'] as const;
+import { readFileSync } from "node:fs";
+
+export const supportedLocales = ["en", "fr"] as const;
 export type SupportedLocale = (typeof supportedLocales)[number];
 
 export type TranslationKey =
-    | 'errors.internal-server-error'
-    | 'auth.invalid-credentials'
-    | 'auth.refresh-token-not-found'
-    | 'authorization.forbidden'
-    | 'user.not-found'
-    | 'user.username-already-taken'
-    | 'product.not-found';
+  | "errors.internal-server-error"
+  | "auth.invalid-credentials"
+  | "auth.refresh-token-not-found"
+  | "authorization.forbidden"
+  | "user.not-found"
+  | "user.username-already-taken"
+  | "product.not-found";
 
 export type TranslationArguments = Record<string, FluentVariable>;
 export type Translator = (
-    key: TranslationKey,
-    args?: TranslationArguments,
+  key: TranslationKey,
+  args?: TranslationArguments,
 ) => string;
 
-const DEFAULT_LOCALE: SupportedLocale = 'en';
+const DEFAULT_LOCALE: SupportedLocale = "en";
 
 const localeResources: Record<SupportedLocale, string> = {
-    en: './src/localization/locales/en.ftl',
-    fr: './src/localization/locales/fr.ftl',
+  en: "./src/localization/locales/en.ftl",
+  fr: "./src/localization/locales/fr.ftl",
 };
 
 const bundles = new Map(
-    supportedLocales.map((locale) => [locale, createBundle(locale)]),
+  supportedLocales.map((locale) => [locale, createBundle(locale)]),
 );
 
 function createBundle(locale: SupportedLocale): FluentBundle {
-    const resource = new FluentResource(
-        readFileSync(localeResources[locale], 'utf8'),
-    );
-    const bundle = new FluentBundle(locale, { useIsolating: false });
-    bundle.addResource(resource);
-    return bundle;
+  const resource = new FluentResource(
+    readFileSync(localeResources[locale], "utf8"),
+  );
+  const bundle = new FluentBundle(locale, { useIsolating: false });
+  bundle.addResource(resource);
+  return bundle;
 }
 
 function parseAcceptedLanguages(
-    headerValue: string | string[] | undefined,
+  headerValue: string | string[] | undefined,
 ): string[] {
-    const header = Array.isArray(headerValue)
-        ? headerValue.join(',')
-        : headerValue;
+  const header = Array.isArray(headerValue)
+    ? headerValue.join(",")
+    : headerValue;
 
-    if (header == null || header.trim() === '') {
-        return [];
-    }
+  if (header == null || header.trim() === "") {
+    return [];
+  }
 
-    return header
-        .split(',')
-        .map((entry) => {
-            const [tag = '', ...parameters] = entry.trim().split(';');
-            const qualityParameter = parameters.find((parameter) =>
-                parameter.trim().startsWith('q=')
-            );
-            const quality = Number(qualityParameter?.trim().slice(2) ?? '1');
+  return header
+    .split(",")
+    .map((entry) => {
+      const [tag = "", ...parameters] = entry.trim().split(";");
+      const qualityParameter = parameters.find((parameter) =>
+        parameter.trim().startsWith("q=")
+      );
+      const quality = Number(qualityParameter?.trim().slice(2) ?? "1");
 
-            return {
-                tag: tag.toLowerCase(),
-                quality: Number.isFinite(quality) ? quality : 0,
-            };
-        })
-        .filter(({ tag }) => tag !== '')
-        .sort((left, right) => right.quality - left.quality)
-        .map(({ tag }) => tag);
+      return {
+        tag: tag.toLowerCase(),
+        quality: Number.isFinite(quality) ? quality : 0,
+      };
+    })
+    .filter(({ tag }) => tag !== "")
+    .sort((left, right) => right.quality - left.quality)
+    .map(({ tag }) => tag);
 }
 
 export function resolveLocale(
-    headerValue: string | string[] | undefined,
+  headerValue: string | string[] | undefined,
 ): SupportedLocale {
-    for (const requestedLocale of parseAcceptedLanguages(headerValue)) {
-        const exactMatch = supportedLocales.find((locale) =>
-            locale.toLowerCase() === requestedLocale
-        );
+  for (const requestedLocale of parseAcceptedLanguages(headerValue)) {
+    const exactMatch = supportedLocales.find((locale) =>
+      locale.toLowerCase() === requestedLocale
+    );
 
-        if (exactMatch != null) {
-            return exactMatch;
-        }
-
-        const partialMatch = supportedLocales.find((locale) =>
-            requestedLocale.startsWith(`${locale.toLowerCase()}-`) ||
-            locale.toLowerCase().startsWith(`${requestedLocale}-`)
-        );
-
-        if (partialMatch != null) {
-            return partialMatch;
-        }
+    if (exactMatch != null) {
+      return exactMatch;
     }
 
-    return DEFAULT_LOCALE;
+    const partialMatch = supportedLocales.find((locale) =>
+      requestedLocale.startsWith(`${locale.toLowerCase()}-`) ||
+      locale.toLowerCase().startsWith(`${requestedLocale}-`)
+    );
+
+    if (partialMatch != null) {
+      return partialMatch;
+    }
+  }
+
+  return DEFAULT_LOCALE;
 }
 
 export function translate(
-    locale: SupportedLocale,
-    key: TranslationKey,
-    args?: TranslationArguments,
+  locale: SupportedLocale,
+  key: TranslationKey,
+  args?: TranslationArguments,
 ): string {
-    const messageId = key.replaceAll('.', '-');
-    const bundle = bundles.get(locale) ?? bundles.get(DEFAULT_LOCALE);
+  const messageId = key.replaceAll(".", "-");
+  const bundle = bundles.get(locale) ?? bundles.get(DEFAULT_LOCALE);
 
-    if (bundle == null) {
-        throw new Error(`Locale bundle "${locale}" is not available.`);
-    }
+  if (bundle == null) {
+    throw new Error(`Locale bundle "${locale}" is not available.`);
+  }
 
-    const message = bundle.getMessage(messageId);
+  const message = bundle.getMessage(messageId);
 
-    if (message?.value == null) {
-        throw new Error(
-            `Translation "${key}" is not available for locale "${locale}".`,
-        );
-    }
+  if (message?.value == null) {
+    throw new Error(
+      `Translation "${key}" is not available for locale "${locale}".`,
+    );
+  }
 
-    const errors: Error[] = [];
-    const translatedMessage = bundle.formatPattern(message.value, args, errors);
+  const errors: Error[] = [];
+  const translatedMessage = bundle.formatPattern(message.value, args, errors);
 
-    if (errors.length > 0) {
-        throw errors[0];
-    }
+  if (errors.length > 0) {
+    throw errors[0];
+  }
 
-    return translatedMessage;
+  return translatedMessage;
 }

@@ -14,16 +14,12 @@ reset-env force="false":
 # Dev
 [group('Dev')]
 dev:
-    deno run --allow-env --allow-sys --allow-net --allow-read --watch src/main.ts
+    node src/main.ts
 
 [group('Dev')]
 fmt:
     deno fmt .
     deno lint .
-
-[group('Dev')]
-repl:
-    deno repl
 
 # Build
 [group('Build')]

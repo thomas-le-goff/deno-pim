@@ -1,11 +1,19 @@
-FROM denoland/deno:2.7.14
+FROM node:24 as build
 
-WORKDIR /app
+WORKDIR /usr/src/app
 
-COPY . .
+COPY package*.json ./
+COPY src ./src
 
-RUN deno cache --allow-scripts=npm:protobufjs src/
+RUN npm install
+
+FROM node:24 as runtime
+
+WORKDIR /usr/src/app
+
+COPY --from=build /usr/src/app/node_modules ./node_modules
+COPY --from=build /usr/src/app/src ./src
 
 EXPOSE 3000
 
-CMD ["run", "--allow-net", "--allow-read", "--allow-env", "--allow-sys", "src/main.ts"]
+CMD ["node", "src/main.ts"]
