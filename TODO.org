@@ -1,0 +1,25 @@
+
+* Deno PIM TODO
+** TODO Write API for products
+** TODO Fetch product image using open food fact with cloud first storage for images (SeaweedFS)
+** TODO Event Driven Architecture using NATS
+** TODO Implements and setup healthcheck
+** TODO Load test using autocannon (and optimization with the following reco:
+  [[https://www.youtube.com/watch?v=VI29mUA8n9w][video link]])
+** TODO Properly handle SIGINT
+** TODO Nginx integration
+** TODO CI/CD pipeline (tests, Docker build, quality checks, dependency updates)
+** TODO Dependency injection (by taking a look at awilix)
+** TODO Migration rollback support
+** TODO Swagger authentication using credentials
+** TODO WebSocket API
+** TODO Unit test (using node:test)
+** TODO OpenTelemetry traces and metrics
+** TODO OWASP recommendations
+** TODO ANSSI recommendations
+** TODO Terraform deployment for a specific cloud provider
+** TODO Study and justify idempotency choices
+** TODO Send registration link to created user (email management)
+** TODO REST Client generation for TS (with full automation and publication on npm registry)
+** TODO Clear expired refresh token
+** TODO Real OAuth 2.0 implementation

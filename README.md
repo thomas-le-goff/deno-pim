@@ -9,7 +9,7 @@ and a simple modern DevOps setup.
 
 ## Already available
 
-- REST API built with Deno and Fastify
+- REST API built with Node and Fastify
 - Integrated JWT-based first-party authentication for a stateless API
 - Protected routes for the current user and product access
 - Localization with Mozilla Fluent (`Accept-Language` negotiation for API
@@ -21,38 +21,11 @@ and a simple modern DevOps setup.
 - REST test files for authentication and product endpoints
 - Dev container, `Containerfile`, and `compose.yml`
 - e2e tests using httpyac (REST API 2e2)
+- OpenTelemetry logs, including Grafana dashboards (full docker compose stack)
 
-## Planned work
+## Planned Work
 
-- Proper logging (cloudfirst logging)
-- OpenTelemetry, including Grafana dashboards
-
-- 12-factor app recommendations
-- Event Driven Architecture using NATS
-
-- Read/write API (for product and user management)
-- Properly handle SIGINT
-- Nginx integration
-- Production Docker environment
-- CI/CD pipeline (tests, Docker build, quality checks, dependency updates)
-- Dependency injection (by taking a look at awilix)
-- Migration rollback support
-- Swagger authentication using credentials
-- WebSocket API
-- Unit test (using node:test)
-
-- OWASP recommendations
-- ANSSI recommendations
-- Terraform deployment for a specific cloud provider
-- How to get AST inside of raw SQL query (in stores)
-- Study and justify idempotency choices
-- Send registration link to created user (email management)
-- REST Client generation for TS (with full automation and publication on npm
-  registry)
-- Real OAuth 2.0 implementation
-- Clear expired refresh token
-- Load test using autocanon (and optimization with the following reco:
-  https://www.youtube.com/watch?v=VI29mUA8n9w)
+See: [TODO.org](./TODO.org)
 
 ## Justfile
 
